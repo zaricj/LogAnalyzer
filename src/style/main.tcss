@@ -1,0 +1,44 @@
+/* Ensure the container doesn't overflow the screen */
+HorizontalGroup {
+    height: auto;
+    width: 100%;
+    margin-bottom: 1;
+    align: left middle;
+}
+
+/* Give the label a fixed "column" width so inputs align vertically */
+Label {
+    width: 25;
+    margin-right: 2;
+    padding: 1; 
+}
+
+/* The '1fr' here makes it fill the gap between Label and Button */
+Input {
+    width: 1fr;
+    min-width: 10;
+    max-width: 85; /* Prevents it from getting absurdly wide on big monitors */
+}
+
+Select {
+    width: 1fr;
+    min-width: 10;
+    max-width: 85; /* Prevents it from getting absurdly wide on big monitors */
+}
+
+/* Buttons only take up as much space as their text needs */
+Button {
+    width: auto;
+    margin-left: 2;
+}
+
+/* Adding padding/margin to your specific areas */
+ConfigurationArea {
+    padding: 1 4;
+    margin: 1 0;
+}
+
+WelcomeMessage {
+    margin: 1 4;
+}
+
