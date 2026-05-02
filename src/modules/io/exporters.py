@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from typing import Iterator
 from rich.console import Console
+from app import announce
 
 from src.modules.io.file_utils import ensure_output_dir
 
@@ -42,13 +43,13 @@ def write_csv(output: Path, headers: list[str], rows: Iterator[dict]) -> int:
 # ========== Excel Conversion ==========
 
 
-def convert_csv_to_excel(input_csv_file: Path, output_excel_file: Path):
+def convert_csv_to_excel(input_csv_file: Path, output_excel_file: Path, log_callback):
     if not input_csv_file.exists():
         raise FileNotFoundError("Invalid input file.")
 
     chunk_size = 1024
 
-    with Console().status("[bold]>>> Converting CSV to Excel...[/bold]", spinner="arc"):
+    with Console().status(announce("[bold]>>> Converting CSV to Excel...[/bold]", log_callback), spinner="arc"):
         # read_csv is significantly faster than the csv module for large files
         csv_reader = pd.read_csv(
             input_csv_file,

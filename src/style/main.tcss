@@ -47,10 +47,6 @@ Button {
     margin-left: 2;
 }
 
-#Btn_start_task, #Btn_browse_folder {
-    background: #0a4ca8;
-    border: tall #0a4ca8 50%;
-}
 
 #Btn_start_task:disabled, #Btn_browse_folder:disabled {
     color: #555555;

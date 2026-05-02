@@ -1,14 +1,8 @@
 import re
 from pathlib import Path
 from typing import Dict
-from rich.progress import (
-    Progress,
-    TextColumn,
-    BarColumn,
-    TaskProgressColumn,
-    TimeRemainingColumn,
-)
 
+from app import announce
 from src.modules.core.timestamp import build_timestamp, extract_date_from_filename
 from src.modules.core.thread_executor import run_with_threading
 from src.modules.io.file_utils import get_file_info
@@ -16,17 +10,13 @@ from src.modules.io.file_utils import get_file_info
 # ========== Yield one event block based on the separator pattern ==========
 
 
-def yield_event_block(filepath, separator_pattern, progress=None, task_id=None):
+def yield_event_block(filepath, separator_pattern):
     if isinstance(separator_pattern, str):
         separator_pattern = re.compile(separator_pattern)
 
     buffer = []
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            # Update the progress bar every line
-            if progress and task_id is not None:
-                progress.advance(task_id)
-
             if separator_pattern.match(line):
                 if buffer:
                     yield "".join(buffer)
@@ -82,49 +72,39 @@ def extract_matches_from_event_block(
 # ========== Rows and headers Generator ==========
 
 
-def collect_rows(
-    files: list, separator_regex, compiled):
+def collect_rows(files: list, separator_regex, compiled, log_callback):
     """Collect rows from files, applying keyword filtering and optimizing timestamping."""
     files_info = run_with_threading(get_file_info, files)
+    for file in files_info:
+        if not file:
+            continue
 
-    with Progress(
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        TimeRemainingColumn(),
-        transient=False,  # Bars do not disappear when finished
-    ) as progress:
-        for file in files_info:
-            if not file:
+        filepath: Path = file["Filepath"]
+
+        # CACHE these values once per file
+        date_created = file["Created"].split("-")[0].strip()
+        filename_date = extract_date_from_filename(filepath) or date_created
+        announce(f"[bold] > Searching file [magenta]{filepath}[/magenta]...[/bold]", log_callback)
+        block_iter = yield_event_block(filepath, separator_regex)
+
+        for block in block_iter:
+            matches = extract_matches_from_event_block(block, compiled)
+            
+            if not matches:
+                continue
+            
+            parsed_time = matches.get("time")
+            if parsed_time:
+                matches["timestamp"] = build_timestamp(parsed_time, filename_date)
+            # Ensure 'time' is removed only after processing all matches in this block
+            if "time" in matches:
+                matches.pop("time")
+            # Validate row is not empty after processing
+            if not is_empty_row(matches, "timestamp"):
                 continue
 
-            filepath: Path = file["Filepath"]
-            task_id = progress.add_task(f"Searching [bold magenta]{filepath.name}[/bold magenta]...", total=file["Lines"])
-
-            # CACHE these values once per file
-            date_created = file["Created"].split("-")[0].strip()
-            filename_date = extract_date_from_filename(filepath) or date_created
-
-            block_iter = yield_event_block(filepath, separator_regex, progress, task_id)
-
-            for block in block_iter:
-                matches = extract_matches_from_event_block(block, compiled)
-                
-                if not matches:
-                    continue
-                
-                parsed_time = matches.get("time")
-                if parsed_time:
-                    matches["timestamp"] = build_timestamp(parsed_time, filename_date)
-                # Ensure 'time' is removed only after processing all matches in this block
-                if "time" in matches:
-                    matches.pop("time")
-                # Validate row is not empty after processing
-                if not is_empty_row(matches, "timestamp"):
-                    continue
-
-                # Yield each valid row immediately
-                yield matches
+            # Yield each valid row immediately
+            yield matches
 
 
 def is_empty_row(row: dict, ignore_key: str) -> bool:

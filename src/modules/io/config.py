@@ -34,7 +34,7 @@ def load_pattern_search_rule(
     # Validate pattern_key exists
     if pattern_key not in patterns_json:
         raise ValueError(
-            f"Invalid pattern key: '{pattern_key}'. Available keys: {list(patterns_json.keys())}"
+            f"Invalid pattern key: '{pattern_key}'.\nAvailable keys: {list(patterns_json.keys())}"
         )
 
     # Compile patterns for the selected category
