@@ -2,17 +2,34 @@ WelcomeMessage {
     margin: 1 4;
 }
 
-AppOutput {
-    display: none;
-    height: 15;   
-    border: tall #0a4ca8;
-    margin-top: 2;
-}
-
-ConfigurationArea {
+AppOutputArea {
+    height: 20;
     background: $boost;
     padding: 1 2;
     margin: 1 4;
+}
+
+#main_log {
+    background: $boost;
+}
+
+ConfigurationArea, TaskRunArea {
+    background: $boost;
+    padding: 1 2;
+    margin: 1 4;
+}
+
+SavedTasksArea {
+    background: $boost;
+    padding: 1 2;
+    margin: 1 4;
+}
+
+OutputHorizontal {
+    height: auto;
+    width: 100%;
+    margin-bottom: 1;
+    align: left middle;
 }
 
 HorizontalGroup {
@@ -47,6 +64,9 @@ Button {
     margin-left: 2;
 }
 
+#Btn_save_task {
+    margin-left: 2;
+}
 
 #Btn_start_task:disabled, #Btn_browse_folder:disabled {
     color: #555555;
@@ -55,4 +75,5 @@ Button {
 
 #Chk_excel_conversion {
     border: tall #237d2a 50%;
+    margin-left: 2;
 }

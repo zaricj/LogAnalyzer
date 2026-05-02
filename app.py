@@ -15,7 +15,7 @@ from textual.widgets import (
     Checkbox,
     RichLog,
 )
-from textual.containers import HorizontalGroup, VerticalScroll, VerticalGroup
+from textual.containers import Horizontal, HorizontalGroup, VerticalScroll, VerticalGroup
 
 from src.modules.core.utils import get_pattern_keys
 from src.modules.core.pipeline import execute_pipeline
@@ -34,6 +34,7 @@ class WelcomeMessage(Static):
 # Welcome to Glint ✨!
 
 A powerful file analysis and pattern extraction tool designed to search through log files.
+
 Extract structured information using regex patterns, and generate comprehensive reports.
 """
 
@@ -78,6 +79,19 @@ class CSVFileName(HorizontalGroup):
             placeholder="Enter a name for the CSV file, suffix '.csv' is added automatically...",
             id="input_csv_filename",
         )
+        
+
+class SavedTasksArea(VerticalGroup):
+    def compose(self):
+        yield Label("[underline]Saved custom tasks:[/underline]")
+        yield SaveTaskArea()
+
+
+class SaveTaskArea(HorizontalGroup):
+    def compose(self):
+        yield Label(content="Saved task configurations:")
+        yield Select((("Task1", 1), ("Task2", 2)))
+        yield Button("Load Task", id="Btn_load_task", variant="primary")
 
 
 class StartTask(HorizontalGroup):
@@ -89,27 +103,33 @@ class StartTask(HorizontalGroup):
             id="Chk_excel_conversion",
             value=False,
         )
-
-
-class AppOutput(RichLog):
-    pass
+        yield Button(label="Save Task", id="Btn_save_task", variant="success")
 
 
 class PatternConfigurationArea(VerticalGroup):
     def compose(self) -> ComposeResult:
+        yield Label("[underline]Search Configuration:[/underline]")
         yield ComboboxPattern()
         yield SelectedFolder()
         yield FilePattern()
 
 
+class TaskRunArea(VerticalGroup):
+    def compose(self):
+        yield Label("[underline]Task Configuration:[/underline]")
+        yield CSVFileName()
+        yield StartTask()
+
+
+class AppOutputArea(VerticalGroup):
+    def compose(self):
+        yield Label("[underline]App Output:[/underline]", id="label_app_output")
+        yield RichLog(highlight=True, markup=True, id="main_log")
+
+
 class ConfigurationArea(VerticalGroup):
     def compose(self) -> ComposeResult:
         yield PatternConfigurationArea()
-        yield Rule()
-        yield CSVFileName()
-        yield StartTask()
-        yield Rule()
-        yield AppOutput(highlight=True, markup=True, id="main_log")
 
 # ===== Main app class =====
 
@@ -183,7 +203,13 @@ class GlintApp(App):
         yield WelcomeMessage()
         yield Rule(line_style="heavy")
         with VerticalScroll():
+            yield SavedTasksArea()
+            yield Rule()
             yield ConfigurationArea()
+            yield Rule()
+            yield TaskRunArea()
+            yield Rule()
+            yield AppOutputArea()
         yield Footer()
 
     def action_toggle_dark(self) -> None:
