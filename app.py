@@ -1,8 +1,6 @@
-from multiprocessing import Value
 from pathlib import Path
 from textual import work
 from textual.app import App, ComposeResult
-from textual.types import NoSelection
 from textual.widgets import (
     Footer,
     Header,
@@ -19,8 +17,8 @@ from textual.widgets import (
 )
 from textual.containers import HorizontalGroup, VerticalScroll, VerticalGroup
 
-from rich import print as rprint
 from src.modules.core.utils import get_pattern_keys
+from src.modules.core.pipeline import execute_pipeline
 from datetime import datetime
 
 # Configuration constants
@@ -28,13 +26,6 @@ PATTERNS_CONFIG = "src/patterns/patterns.json"
 # CSV output
 OUTPUT_DIR = "output"
 TIMESTAMP_PREFIX = datetime.now().strftime("%Y_%m_%d")
-
-def announce(msg, log_callback):
-    if log_callback:
-        log_callback(msg)
-    else:
-        rprint(msg)
-
 
 class WelcomeMessage(Static):
     """A self-contained welcome widget with collapsible markdown."""
@@ -128,6 +119,26 @@ class GlintApp(App):
         ("d", "toggle_dark", "Toggle dark mode"),
         ("a", "about", "About"),
     ]
+    
+    def build_output_path(self, csv_name: str | None, pattern_key: str) -> Path:
+        """Build the output CSV file path."""
+        # Ensure that the inputted filename for the csv
+        # ends with the correct suffix '.csv'
+        if csv_name:
+            csv_name = csv_name + ".csv" if not csv_name.endswith(".csv") else csv_name
+            return Path(f"{OUTPUT_DIR}/{csv_name}")
+        else:
+            return Path(f"{OUTPUT_DIR}/{TIMESTAMP_PREFIX}_{pattern_key}.csv")
+    
+    def gather_ui_values(self) -> dict:
+        """Gather all UI input values into a configuration dict."""
+        return {
+            "pattern_key": self.query_one("#select_pattern", Select).value,
+            "search_dir": self.query_one("#input_directory", Input).value,
+            "file_filter": self.query_one("#input_file_pattern", Input).value,
+            "csv_name": self.query_one("#input_csv_filename", Input).value,
+            "excel_conversion": self.query_one("#Chk_excel_conversion", Checkbox).value,
+        }
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle the Start Task button press."""
@@ -140,17 +151,7 @@ class GlintApp(App):
         log = self.query_one(RichLog)  # Queries the RichLog widget
         btn = self.query_one("#Btn_start_task", Button)
 
-        # Gather UI values (with fixed IDs)
-        pattern_key = self.query_one("#select_pattern", Select).value
-        search_dir = self.query_one("#input_directory", Input).value
-        file_filter = self.query_one("#input_file_pattern", Input).value
-        csv_name = self.query_one("#input_csv_filename", Input).value
-        excel_conversion = self.query_one("#Chk_excel_conversion", Checkbox).value
-
-        # Ensure that the inputted filename for the csv
-        # ends with the correct suffix '.csv'
-        if csv_name != "" and not csv_name.endswith(".csv"):
-            csv_name = csv_name + ".csv"
+        input_values = self.gather_ui_values()
 
         # Update UI State
         btn.disabled = True
@@ -160,22 +161,14 @@ class GlintApp(App):
         log.write("[bold]Initializing Pipeline...\n[/bold]")
 
         try:
-            CSV_FILE = (
-                Path(f"{OUTPUT_DIR}/{csv_name}")
-                if csv_name != ""
-                else Path(f"{OUTPUT_DIR}/{TIMESTAMP_PREFIX}_{pattern_key}.csv")
-            )
 
-            # Call the logic
-            from src.modules.core.pipeline import run_pipeline
-
-            run_pipeline(
+            execute_pipeline(
                 patterns_config=Path(PATTERNS_CONFIG),
-                pattern_key=pattern_key,
-                files_directory=Path(search_dir),
-                file_pattern=file_filter or "*.log",
-                output_csv=CSV_FILE,
-                convert_to_excel = excel_conversion,
+                pattern_key=input_values["pattern_key"],
+                files_directory=Path(input_values["search_dir"]),
+                file_pattern=input_values["file_filter"] or "*.log",
+                output_csv= self.build_output_path(input_values["csv_name"], input_values["pattern_key"]),
+                convert_to_excel = input_values["excel_conversion"],
                 log_callback=log.write
             )
 

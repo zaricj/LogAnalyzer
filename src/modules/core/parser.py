@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from typing import Dict
 
-from app import announce
+from src.modules.core.logging import announce
 from src.modules.core.timestamp import build_timestamp, extract_date_from_filename
 from src.modules.core.thread_executor import run_with_threading
 from src.modules.io.file_utils import get_file_info
@@ -85,6 +85,7 @@ def collect_rows(files: list, separator_regex, compiled, log_callback):
         date_created = file["Created"].split("-")[0].strip()
         filename_date = extract_date_from_filename(filepath) or date_created
         announce(f"[bold] > Searching file [magenta]{filepath}[/magenta]...[/bold]", log_callback)
+        
         block_iter = yield_event_block(filepath, separator_regex)
 
         for block in block_iter:
