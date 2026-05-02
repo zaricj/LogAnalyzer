@@ -2,7 +2,7 @@ import csv
 import pandas as pd
 from pathlib import Path
 from typing import Iterator
-from src.modules.core.ui import CONSOLE
+from rich.console import Console
 
 from src.modules.io.file_utils import ensure_output_dir
 
@@ -48,7 +48,7 @@ def convert_csv_to_excel(input_csv_file: Path, output_excel_file: Path):
 
     chunk_size = 1024
 
-    with CONSOLE.status("[bold]>>> Converting CSV to Excel...[/bold]", spinner="arc"):
+    with Console().status("[bold]>>> Converting CSV to Excel...[/bold]", spinner="arc"):
         # read_csv is significantly faster than the csv module for large files
         csv_reader = pd.read_csv(
             input_csv_file,

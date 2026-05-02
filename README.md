@@ -155,8 +155,6 @@ result = run_pipeline(
     files_directory="logs/",
     file_pattern="*.log",
     output_csv="output/results.csv",
-    event_keyword="",
-    show_progress=True
 )
 ```
 

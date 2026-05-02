@@ -1,4 +1,20 @@
-/* Ensure the container doesn't overflow the screen */
+WelcomeMessage {
+    margin: 1 4;
+}
+
+AppOutput {
+    display: none;
+    height: 15;   
+    border: tall #0a4ca8;
+    margin-top: 2;
+}
+
+ConfigurationArea {
+    background: $boost;
+    padding: 1 2;
+    margin: 1 4;
+}
+
 HorizontalGroup {
     height: auto;
     width: 100%;
@@ -6,39 +22,41 @@ HorizontalGroup {
     align: left middle;
 }
 
-/* Give the label a fixed "column" width so inputs align vertically */
 Label {
     width: 25;
     margin-right: 2;
     padding: 1; 
 }
 
-/* The '1fr' here makes it fill the gap between Label and Button */
 Input {
     width: 1fr;
     min-width: 10;
-    max-width: 85; /* Prevents it from getting absurdly wide on big monitors */
+    max-width: 85;
+    background: $boost;
 }
 
 Select {
     width: 1fr;
     min-width: 10;
-    max-width: 85; /* Prevents it from getting absurdly wide on big monitors */
+    max-width: 85;
 }
 
-/* Buttons only take up as much space as their text needs */
 Button {
     width: auto;
+    height: 3;
     margin-left: 2;
 }
 
-/* Adding padding/margin to your specific areas */
-ConfigurationArea {
-    padding: 1 4;
-    margin: 1 0;
+#Btn_start_task, #Btn_browse_folder {
+    background: #0a4ca8;
+    border: tall #0a4ca8 50%;
 }
 
-WelcomeMessage {
-    margin: 1 4;
+#Btn_start_task:disabled, #Btn_browse_folder:disabled {
+    color: #555555;
+    opacity: 0.6;
 }
 
+#Chk_excel_conversion {
+    border: tall #237d2a 50%;
+}

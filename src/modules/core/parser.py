@@ -83,13 +83,10 @@ def extract_matches_from_event_block(
 
 
 def collect_rows(
-    files: list, separator_regex, compiled, keyword: str, show_progress: bool
-):
+    files: list, separator_regex, compiled):
     """Collect rows from files, applying keyword filtering and optimizing timestamping."""
     files_info = run_with_threading(get_file_info, files)
 
-    # Pre-compile keyword regex to avoid .lower() on every block
-    keyword_re = re.compile(re.escape(keyword), re.IGNORECASE) if keyword else None
     with Progress(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
@@ -102,33 +99,21 @@ def collect_rows(
                 continue
 
             filepath: Path = file["Filepath"]
-            task_id = (
-                progress.add_task(
-                    f"Searching [bold magenta]{filepath.name}[/bold magenta]...",
-                    total=file["Lines"],
-                )
-                if show_progress
-                else None
-            )
+            task_id = progress.add_task(f"Searching [bold magenta]{filepath.name}[/bold magenta]...", total=file["Lines"])
 
             # CACHE these values once per file
             date_created = file["Created"].split("-")[0].strip()
             filename_date = extract_date_from_filename(filepath) or date_created
 
-            # rprint(f"Processing: [bold blue]{filepath.name}[/bold blue]")
-
             block_iter = yield_event_block(filepath, separator_regex, progress, task_id)
 
             for block in block_iter:
-                if keyword_re and not keyword_re.search(block):
-                    continue
-
                 matches = extract_matches_from_event_block(block, compiled)
-
+                
                 if not matches:
                     continue
-
-                parsed_time = matches["time"]
+                
+                parsed_time = matches.get("time")
                 if parsed_time:
                     matches["timestamp"] = build_timestamp(parsed_time, filename_date)
                 # Ensure 'time' is removed only after processing all matches in this block
@@ -149,19 +134,6 @@ def is_empty_row(row: dict, ignore_key: str) -> bool:
 
 def collect_headers(row: dict) -> list:
     return [key for key in row.keys()]
-
-
-def is_keyword_event(keyword: str, event_block: str) -> bool:
-    """Use this to filter out event blocks that contain a specific keyword
-
-    Args:
-        keyword (str): Keyword to look for in event block
-        event_block (str): Event text block in the log file
-
-    Returns:
-        bool: True if keyword is in the event block, False otherwise
-    """
-    return keyword.lower() in event_block.lower()
 
 
 def clean_block(block: str, ignore_regex: re.Pattern) -> str:
