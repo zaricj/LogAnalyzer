@@ -1,10 +1,29 @@
 SystemStats {
-    height: 7;
-    margin: 1 4;
+    height: 6;
+    margin: 2 4;
     padding: 0 1;
+    dock: top;
     background: $boost;
     border: hkey $accent;
     layout: vertical;
+}
+
+TabbedContent {
+    margin: 0 4;
+}
+
+#main_log {
+    height: 15;
+    margin: 1 2;
+    padding: 0 1; 
+    border: tall $accent;
+    background: $surface;
+}
+
+#config_inputs {
+    height: auto;
+    max-height: 40%;
+    overflow-y: scroll;
 }
 
 #stats_header {
@@ -39,26 +58,19 @@ AppOutputContainer {
     height: 20;
     background: $boost;
     padding: 1 2;
-    margin: 1 4;
-}
-
-#main_log {
-    /* Top/Bottom: 0, Left/Right: 2 characters */
-    padding: 0 1; 
-    /* Optional: background color to see exactly where the padding is */
-    background: $boost; 
+    margin: 1 2;
 }
 
 ConfigurationContainer, TaskRunContainer {
     background: $boost;
     padding: 1 2;
-    margin: 1 4;
+    margin: 1 2;
 }
 
 SavedTasksContainer {
     background: $boost;
     padding: 1 2;
-    margin: 1 4;
+    margin: 1 2;
 }
 
 OutputHorizontal {

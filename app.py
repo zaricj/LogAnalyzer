@@ -19,6 +19,8 @@ from textual.widgets import (
     Static,
     Checkbox,
     RichLog,
+    TabbedContent,
+    TabPane,
 )
 from textual.reactive import reactive
 from textual.containers import (
@@ -261,126 +263,124 @@ class ConfigurationContainer(VerticalGroup):
 
 # ===== Main app class =====
 
-
 class GlintApp(App):
     CSS_PATH = "src/style/main.tcss"
     BINDINGS = [
-        ("d", "toggle_dark", "Toggle dark mode"),
-        ("a", "about", "About"),
+        ("d", "toggle_dark", "Toggle dark mode")
     ]
 
-    app_settings = load_app_settings(APP_SETTINGS_FILE)
+    def on_mount(self) -> None:
+        # Load settings at runtime
+        self.app_settings = load_app_settings(APP_SETTINGS_FILE)
 
-    def build_output_path(self, csv_name: str | None, pattern_key: str) -> Path:
-        """Build the output CSV file path."""
-        # Ensure that the inputted filename for the csv
-        # ends with the correct suffix '.csv'
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _build_output_path(self, csv_name: str | None, pattern_key: str) -> Path:
         if csv_name:
-            csv_name = csv_name + ".csv" if not csv_name.endswith(".csv") else csv_name
+            csv_name = csv_name if csv_name.endswith(".csv") else csv_name + ".csv"
             return Path(f"{OUTPUT_DIR}/{csv_name}")
-        else:
-            return Path(f"{OUTPUT_DIR}/{TIMESTAMP_PREFIX}_{pattern_key}.csv")
+        return Path(f"{OUTPUT_DIR}/{TIMESTAMP_PREFIX}_{pattern_key}.csv")
 
-    def gather_ui_values(self) -> dict:
-        """Gather all UI input values into a configuration dict."""
+    def _gather_ui_values(self) -> dict:
         return {
-            "pattern_key": self.query_one("#select_pattern", Select).value,
-            "search_dir": self.query_one("#input_directory", Input).value,
-            "file_filter": self.query_one("#input_file_pattern", Input).value,
-            "csv_name": self.query_one("#input_csv_filename", Input).value,
+            "pattern_key":      self.query_one("#select_pattern",      Select).value,
+            "search_dir":       self.query_one("#input_directory",      Input).value,
+            "file_filter":      self.query_one("#input_file_pattern",   Input).value,
+            "csv_name":         self.query_one("#input_csv_filename",   Input).value,
             "excel_conversion": self.query_one("#Chk_excel_conversion", Checkbox).value,
         }
 
+    def _log(self, msg: str) -> None:
+        self.query_one(RichLog).write(msg)
+
+    # ------------------------------------------------------------------
+    # Button routing  (one handler, clean dispatch)
+    # ------------------------------------------------------------------
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle the Start Task button press."""
+        dispatch = {
+            "button_browse_folder": self._browse_folder,
+            "button_load_task":     self._load_task,
+            "button_save_task":     self._save_task,
+            "button_start_task":    self._start_task,
+        }
+        handler = dispatch.get(event.button.id)
+        if handler:
+            handler()
 
-        if event.button.id == "button_browse_folder":
-            # Using tkinter for a native folder dialog
-            root = Tk()
-            root.withdraw()  # Hides the small tk window
-            folder_path = filedialog.askdirectory()
-            root.destroy()
+    # ------------------------------------------------------------------
+    # Button handlers
+    # ------------------------------------------------------------------
 
-            if folder_path:
-                self.query_one("#input_directory", Input).value = folder_path
-                del root
+    def _browse_folder(self) -> None:
+        root = Tk()
+        root.withdraw()
+        folder = filedialog.askdirectory()
+        root.destroy()
+        if folder:
+            self.query_one("#input_directory", Input).value = folder
 
-        if event.button.id == "button_load_task":
-            self.load_task_configuration()
-            
-        if event.button.id == "button_save_task":
-            self.save_task_configuration()
+    def _load_task(self) -> None:
+        task_name = self.query_one("#select_task_to_load", Select).value
+        key       = f"SavedTasksSetting.{task_name}"
+        values    = get_setting_values(self.app_settings, key, {})
 
-        if event.button.id == "button_start_task":
-            self.run_search_task()
-
-    def load_task_configuration(self) -> None:
-        """Loads the selected task via the button press"""
-        task_to_load = self.query_one("#select_task_to_load", Select).value
-        task_settings = f"SavedTasksSetting.{task_to_load}"
-        task_values = get_setting_values(self.app_settings, task_settings, {})
-
-        if task_values:
-            select_pattern = self.query_one("#select_pattern", Select)
-
-            saved_pattern = task_values.get("PatternConfiguration")
-
-            valid_values = {v for _, v in select_pattern._options}
-
-            if saved_pattern in valid_values:
-                select_pattern.value = saved_pattern
-            else:
-                self.query_one(RichLog).write(
-                    f"[bold yellow]WARNING:[/bold yellow] Skipping loading of invalid pattern: [bold yellow]{saved_pattern}[/bold yellow]"
-                )
-
-            self.query_one("#input_directory", Input).value = task_values.get(
-                "SearchDirectory", ""
-            )
-            self.query_one("#input_file_pattern", Input).value = task_values.get(
-                "FilePattern", ""
-            )
-            self.query_one("#input_csv_filename", Input).value = task_values.get(
-                "OutputFilename", ""
-            )
-            self.query_one(RichLog).write(f" Task [bold green]'{task_to_load}'[/bold green] loaded successfully!")
-    def save_task_configuration(self) -> None:
-        """Saves the current values of all input widgets to the apps settings"""
-        input_values = self.gather_ui_values()
-        new_task_name = self.query_one("#input_save_task_name", Input).value
-        
-        # 1. Validation: Don't save if the name is empty
-        if not new_task_name.strip():
-            self.query_one(RichLog).write("[bold red]Error:[/bold red] Please enter a task name.")
+        if not values:
+            self._log("[bold red]Error:[/bold red] No data found for that task.")
             return
 
-        new_task_setting = f"SavedTasksSetting.{new_task_name.replace(" ", "_")}"
+        select = self.query_one("#select_pattern", Select)
+        saved_pattern = values.get("PatternConfiguration")
+        valid = {v for _, v in select._options}  
         
-        new_data = {
-            "PatternConfiguration": input_values["pattern_key"],
-            "SearchDirectory": input_values["search_dir"],
-            "FilePattern": input_values["file_filter"],
-            "OutputFilename": input_values["csv_name"]
+        if saved_pattern in valid:
+            select.value = saved_pattern
+        else:
+            self._log(
+                f"[bold yellow]WARNING:[/bold yellow] "
+                f"Pattern [yellow]{saved_pattern}[/yellow] not found — skipped."
+            )
+
+        self.query_one("#input_directory",   Input).value = values.get("SearchDirectory", "")
+        self.query_one("#input_file_pattern",Input).value = values.get("FilePattern",     "")
+        self.query_one("#input_csv_filename",Input).value = values.get("OutputFilename",  "")
+        self._log(f"Task [bold green]'{task_name}'[/bold green] loaded.")
+
+    def _save_task(self) -> None:
+        name = self.query_one("#input_save_task_name", Input).value.strip()
+        if not name:
+            self._log("[bold red]Error:[/bold red] Please enter a task name.")
+            return
+
+        values = self._gather_ui_values()
+        key    = f"SavedTasksSetting.{name.replace(' ', '_')}"
+        data   = {
+            "PatternConfiguration": values["pattern_key"],
+            "SearchDirectory":      values["search_dir"],
+            "FilePattern":          values["file_filter"],
+            "OutputFilename":       values["csv_name"],
         }
-        
-        # Saves to memory and disk
-        set_setting_values(self.app_settings, new_task_setting, new_data)
-        
-        # Refresh the UI by updating the 'ComboBox' for 'Load Task' section
-        load_select = self.query_one("#select_task_to_load", Select)
-        # Re-fetch the updated keys from settings
-        updated_tasks = get_all_setting_keys(self.app_settings, "SavedTasksSetting")
-        load_select.set_options([(task, task) for task in updated_tasks])
-        
-        self.query_one(RichLog).write(f"[bold green]SUCCESS:[/bold green] Task '{new_task_name}' saved to the app's settings.")
+        set_setting_values(self.app_settings, key, data)
+
+        # Refresh load-task dropdown
+        updated = get_all_setting_keys(self.app_settings, "SavedTasksSetting")
+        self.query_one("#select_task_to_load", Select).set_options(
+            [(t, t) for t in updated]
+        )
+        self._log(f"[bold green]Saved:[/bold green] task '{name}'.")
+
+    def _start_task(self) -> None:
+        self._run_search_task()
 
     @work(thread=True)
-    def run_search_task(self) -> None:
+    def _run_search_task(self) -> None:
         """The background worker that runs your logic."""
         log = self.query_one(RichLog)  # Queries the RichLog widget
         btn = self.query_one("#button_start_task", Button)
 
-        input_values = self.gather_ui_values()
+        input_values = self._gather_ui_values()
 
         # Update UI State
         btn.disabled = True
@@ -395,7 +395,7 @@ class GlintApp(App):
                 pattern_key=input_values["pattern_key"],
                 files_directory=Path(input_values["search_dir"]),
                 file_pattern=input_values["file_filter"] or "*.log",
-                output_csv=self.build_output_path(input_values["csv_name"], input_values["pattern_key"]),
+                output_csv=self._build_output_path(input_values["csv_name"], input_values["pattern_key"]),
                 convert_to_excel=input_values["excel_conversion"],
                 log_callback=log.write,
             )
@@ -409,14 +409,18 @@ class GlintApp(App):
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True, icon="✨")
         yield SystemStats()
-        yield Rule(line_style="heavy")
-        with VerticalScroll():
-            yield Rule()
-            yield ConfigurationContainer()
-            yield Rule()
-            yield TaskRunContainer()
-            yield Rule()
-            yield AppOutputContainer()
+        
+        with TabbedContent(initial="tab_config"):
+            with TabPane("Help & Info", id="tab_help"):
+                yield WelcomeMessage()
+            
+            with TabPane("Configuration", id="tab_config"):
+                with VerticalScroll():
+                    yield ConfigurationContainer()
+                    yield Rule()
+                    yield TaskRunContainer()
+                    yield RichLog(highlight=True, markup=True, id="main_log")
+                    
         yield Footer()
 
     def action_toggle_dark(self) -> None:
