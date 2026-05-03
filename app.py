@@ -21,21 +21,30 @@ from textual.widgets import (
     RichLog,
 )
 from textual.reactive import reactive
-from textual.containers import Horizontal, HorizontalGroup, VerticalScroll, VerticalGroup
-from textual.widgets._select import InvalidSelectValueError
-from rich.table import Table
-from rich.progress_bar import ProgressBar
+from textual.containers import (
+    Horizontal,
+    HorizontalGroup,
+    VerticalScroll,
+    VerticalGroup,
+)
 from rich.text import Text
 
 from src.modules.core.utils import get_pattern_keys
 from src.modules.core.pipeline import execute_pipeline
-from src.modules.io.settings_config import APP_SETTINGS_FILE, load_app_settings, get_all_setting_keys, get_setting_values
+from src.modules.io.settings_config import (
+    APP_SETTINGS_FILE,
+    load_app_settings,
+    get_all_setting_keys,
+    get_setting_values,
+    set_setting_values,
+)
 
 # Configuration constants
 PATTERNS_CONFIG = "src/patterns/patterns.json"
 # CSV output
 OUTPUT_DIR = "output"
 TIMESTAMP_PREFIX = datetime.now().strftime("%Y_%m_%d")
+
 
 class WelcomeMessage(Static):
     """A self-contained welcome widget with collapsible markdown."""
@@ -126,28 +135,40 @@ class SystemStats(Static):
         self.query_one("#stat_app_ram", StatPanel).value = self.app_ram
 
     def compose(self) -> ComposeResult:
-        yield Static("[bold underline]SYSTEM MONITOR[/bold underline]", id="stats_header")
+        yield Static(
+            "[bold underline]SYSTEM MONITOR[/bold underline]", id="stats_header"
+        )
         with Horizontal(id="stats_row"):
-            yield StatPanel("CPU", unit="%", id="stat_cpu")
+            yield StatPanel("CPU USAGE", unit="%", id="stat_cpu")
             yield Static("│", id="stats_divider_1", classes="stats_divider")
-            yield StatPanel("RAM", unit="%", id="stat_ram")
+            yield StatPanel("RAM USAGE", unit="%", id="stat_ram")
             yield Static("│", id="stats_divider_2", classes="stats_divider")
-            yield StatPanel("APP", unit="MB", max_val=500.0, id="stat_app_ram")
+            yield StatPanel("APP RAM USAGE", unit="MB", max_val=500.0, id="stat_app_ram")
 
-# ===== Horizontal widgets which are displayed in Vertical Group widgets ===== 
+
+# ===== Horizontal widgets which are displayed in Vertical Group widgets =====
 
 class LoadTask(HorizontalGroup):
-    
     def get_saved_tasks(self) -> list[str]:
         data = load_app_settings(APP_SETTINGS_FILE)
         return get_all_setting_keys(data, "SavedTasksSetting")
-    
+
     def compose(self):
         yield Label(content="Load saved task:")
         saved_tasks = self.get_saved_tasks()
         yield Select(
-            ((task, task) for task in saved_tasks), prompt="Select a saved task to load...", id="select_task_to_load")
+            ((task, task) for task in saved_tasks),
+            prompt="Select a saved task to load...",
+            id="select_task_to_load",
+        )
         yield Button("Load Task", id="button_load_task", variant="primary")
+
+
+class SaveTask(HorizontalGroup):
+    def compose(self):
+        yield Label(content="Save task:")
+        yield Input(placeholder="Enter a task name...", id="input_save_task_name")
+        yield Button("Save Task", id="button_save_task", variant="success")
 
 
 class ComboboxPattern(HorizontalGroup):
@@ -165,7 +186,10 @@ class ComboboxPattern(HorizontalGroup):
 class SelectedFolder(HorizontalGroup):
     def compose(self) -> ComposeResult:
         yield Label("Search directory:", id="label_search_directory")
-        yield Input(placeholder="Select a folder in which to perform the search...", id="input_directory")
+        yield Input(
+            placeholder="Select a folder in which to perform the search...",
+            id="input_directory",
+        )
         yield Button(label="Browse", id="button_browse_folder", variant="primary")
 
 
@@ -191,16 +215,17 @@ class StartTask(HorizontalGroup):
     def compose(self) -> ComposeResult:
         yield Label(content="Run search task:")
         yield Button(label="Start Task", id="button_start_task", variant="primary")
-        yield Button(label="Save Task", id="button_save_task", variant="success")
         yield Checkbox(
             label="Convert CSV file to Excel after task end?",
             id="Chk_excel_conversion",
             value=False,
         )
 
-# ===== END Horizontal widgets END ===== 
+
+# ===== END Horizontal widgets END =====
 
 # ===== Vertical widgets =====
+
 
 class PatternConfigurationContainer(VerticalGroup):
     def compose(self) -> ComposeResult:
@@ -215,12 +240,15 @@ class TaskRunContainer(VerticalGroup):
     def compose(self):
         yield Label("[underline]Run task:[/underline]")
         yield LoadTask()
+        yield SaveTask()
         yield StartTask()
 
 
 class AppOutputContainer(VerticalGroup):
     def compose(self):
-        with Collapsible(title="[bold underline]App Output:[/bold underline]", collapsed=False):
+        with Collapsible(
+            title="[bold underline]App Output:[/bold underline]", collapsed=False
+        ):
             yield RichLog(highlight=True, markup=True, id="main_log")
 
 
@@ -228,9 +256,11 @@ class ConfigurationContainer(VerticalGroup):
     def compose(self) -> ComposeResult:
         yield PatternConfigurationContainer()
 
+
 # ===== END Vertical widgets END =====
 
 # ===== Main app class =====
+
 
 class GlintApp(App):
     CSS_PATH = "src/style/main.tcss"
@@ -238,9 +268,9 @@ class GlintApp(App):
         ("d", "toggle_dark", "Toggle dark mode"),
         ("a", "about", "About"),
     ]
-    
+
     app_settings = load_app_settings(APP_SETTINGS_FILE)
-    
+
     def build_output_path(self, csv_name: str | None, pattern_key: str) -> Path:
         """Build the output CSV file path."""
         # Ensure that the inputted filename for the csv
@@ -250,7 +280,7 @@ class GlintApp(App):
             return Path(f"{OUTPUT_DIR}/{csv_name}")
         else:
             return Path(f"{OUTPUT_DIR}/{TIMESTAMP_PREFIX}_{pattern_key}.csv")
-    
+
     def gather_ui_values(self) -> dict:
         """Gather all UI input values into a configuration dict."""
         return {
@@ -263,46 +293,86 @@ class GlintApp(App):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle the Start Task button press."""
-        
+
         if event.button.id == "button_browse_folder":
-        # Using tkinter for a native folder dialog
+            # Using tkinter for a native folder dialog
             root = Tk()
-            root.withdraw() # Hides the small tk window
+            root.withdraw()  # Hides the small tk window
             folder_path = filedialog.askdirectory()
             root.destroy()
-            
+
             if folder_path:
                 self.query_one("#input_directory", Input).value = folder_path
                 del root
-                
+
         if event.button.id == "button_load_task":
             self.load_task_configuration()
-                
+            
+        if event.button.id == "button_save_task":
+            self.save_task_configuration()
+
         if event.button.id == "button_start_task":
             self.run_search_task()
-            
+
     def load_task_configuration(self) -> None:
         """Loads the selected task via the button press"""
-        log = self.query_one(RichLog)
         task_to_load = self.query_one("#select_task_to_load", Select).value
         task_settings = f"SavedTasksSetting.{task_to_load}"
-        saved_task_values = get_setting_values(self.app_settings, task_settings, {})
+        task_values = get_setting_values(self.app_settings, task_settings, {})
 
-        if saved_task_values:
+        if task_values:
             select_pattern = self.query_one("#select_pattern", Select)
 
-            saved_pattern = saved_task_values.get("PatternConfiguration")
+            saved_pattern = task_values.get("PatternConfiguration")
 
             valid_values = {v for _, v in select_pattern._options}
 
             if saved_pattern in valid_values:
                 select_pattern.value = saved_pattern
             else:
-                log.write(f"[bold yellow]WARNING:[/bold yellow] Skipping invalid pattern: [bold yellow]{saved_pattern}[/bold yellow]")
+                self.query_one(RichLog).write(
+                    f"[bold yellow]WARNING:[/bold yellow] Skipping loading of invalid pattern: [bold yellow]{saved_pattern}[/bold yellow]"
+                )
 
-            self.query_one("#input_directory", Input).value = saved_task_values.get("SearchDirectory", "")
-            self.query_one("#input_file_pattern", Input).value = saved_task_values.get("FilePattern", "")
-            self.query_one("#input_csv_filename", Input).value = saved_task_values.get("OutputFilename", "")
+            self.query_one("#input_directory", Input).value = task_values.get(
+                "SearchDirectory", ""
+            )
+            self.query_one("#input_file_pattern", Input).value = task_values.get(
+                "FilePattern", ""
+            )
+            self.query_one("#input_csv_filename", Input).value = task_values.get(
+                "OutputFilename", ""
+            )
+            self.query_one(RichLog).write(f" Task [bold green]'{task_to_load}'[/bold green] loaded successfully!")
+    def save_task_configuration(self) -> None:
+        """Saves the current values of all input widgets to the apps settings"""
+        input_values = self.gather_ui_values()
+        new_task_name = self.query_one("#input_save_task_name", Input).value
+        
+        # 1. Validation: Don't save if the name is empty
+        if not new_task_name.strip():
+            self.query_one(RichLog).write("[bold red]Error:[/bold red] Please enter a task name.")
+            return
+
+        new_task_setting = f"SavedTasksSetting.{new_task_name.replace(" ", "_")}"
+        
+        new_data = {
+            "PatternConfiguration": input_values["pattern_key"],
+            "SearchDirectory": input_values["search_dir"],
+            "FilePattern": input_values["file_filter"],
+            "OutputFilename": input_values["csv_name"]
+        }
+        
+        # Saves to memory and disk
+        set_setting_values(self.app_settings, new_task_setting, new_data)
+        
+        # Refresh the UI by updating the 'ComboBox' for 'Load Task' section
+        load_select = self.query_one("#select_task_to_load", Select)
+        # Re-fetch the updated keys from settings
+        updated_tasks = get_all_setting_keys(self.app_settings, "SavedTasksSetting")
+        load_select.set_options([(task, task) for task in updated_tasks])
+        
+        self.query_one(RichLog).write(f"[bold green]SUCCESS:[/bold green] Task '{new_task_name}' saved to the app's settings.")
 
     @work(thread=True)
     def run_search_task(self) -> None:
@@ -320,15 +390,14 @@ class GlintApp(App):
         log.write("[bold]Initializing Pipeline...\n[/bold]")
 
         try:
-
             execute_pipeline(
                 patterns_config=Path(PATTERNS_CONFIG),
                 pattern_key=input_values["pattern_key"],
                 files_directory=Path(input_values["search_dir"]),
                 file_pattern=input_values["file_filter"] or "*.log",
-                output_csv= self.build_output_path(input_values["csv_name"], input_values["pattern_key"]),
-                convert_to_excel = input_values["excel_conversion"],
-                log_callback=log.write
+                output_csv=self.build_output_path(input_values["csv_name"], input_values["pattern_key"]),
+                convert_to_excel=input_values["excel_conversion"],
+                log_callback=log.write,
             )
 
         except Exception as e:

@@ -1,16 +1,10 @@
 {
     "SavedTasksSetting": {
-        "TaskName1": {
-            "PatternConfiguration": "Pattern",
-            "SearchDirectory": "Directory",
-            "FilePattern": "Pattern",
-            "OutputFilename": "OutFilename"
-        },
-        "TaskName2": {
-            "PatternConfiguration": "Pattern",
-            "SearchDirectory": "Directory",
-            "FilePattern": "Pattern",
-            "OutputFilename": "OutFilename"
+        "HTTPs_Requests": {
+            "PatternConfiguration": "http_requests_jasperserver",
+            "SearchDirectory": "logs",
+            "FilePattern": "*.txt",
+            "OutputFilename": "DataResult"
         }
     }
 }

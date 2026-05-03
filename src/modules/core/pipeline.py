@@ -45,7 +45,7 @@ def start_process(
     count = write_csv(output_csv, headers, full_generator)
 
     announce(
-        f"[bold green]✓ Writing to csv has finished, wrote [bold yellow]{count}[/bold yellow] rows...[/bold green]",
+        f"[bold green]\n✓ Writing to csv has finished, wrote [bold yellow]{count}[/bold yellow] rows...\n[/bold green]",
         log_callback,
     )
 
@@ -56,12 +56,12 @@ def start_process(
                 output_csv, excel_filename, log_callback
             )  # Convert to excel
             announce(
-                "[bold green]✓ CSV converted to excel format.[/bold green]",
+                "[bold green]\n ✓ CSV converted to Excel![/bold green]",
                 log_callback,
             )
         else:
             announce(
-                "[bold yellow]✖ CSV exceeds Excel's 1,048,576 row limit; Conversion to Excel is not possible.",
+                "[bold yellow]\n ✖ CSV exceeds Excel's 1,048,576 row limit; Conversion to Excel is not possible.",
                 log_callback,
             )
             excel_filename = ""
@@ -107,7 +107,7 @@ def execute_pipeline(
     compiled, separator_regex = load_pattern_search_rule(patterns_config, pattern_key)
 
     announce(
-        "[bold]>>> Searching files for matches and writing results to csv...[/bold]",
+        "[bold]>>> Searching files for matches and writing results to csv...\n[/bold]",
         log_callback,
     )
     start_process(

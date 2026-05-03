@@ -48,7 +48,7 @@ def convert_csv_to_excel(input_csv_file: Path, output_excel_file: Path, log_call
 
     chunk_size = 1024
 
-    announce("[bold yellow]>>> Converting CSV to Excel...[/bold yellow]", log_callback)
+    announce("[bold yellow] >>> Converting CSV to Excel, please wait...[/bold yellow]", log_callback)
     # read_csv is significantly faster than the csv module for large files
     csv_reader = pd.read_csv(
         input_csv_file,

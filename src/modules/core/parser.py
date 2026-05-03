@@ -84,7 +84,7 @@ def collect_rows(files: list, separator_regex, compiled, log_callback):
         # CACHE these values once per file
         date_created = file["Created"].split("-")[0].strip()
         filename_date = extract_date_from_filename(filepath) or date_created
-        announce(f"[bold] > Searching file [magenta]{filepath}[/magenta]...[/bold]", log_callback)
+        announce(f"> Searching file [bold magenta]{filepath}[/bold magenta]...", log_callback)
         
         block_iter = yield_event_block(filepath, separator_regex)
 

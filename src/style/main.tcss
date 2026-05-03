@@ -43,7 +43,10 @@ AppOutputContainer {
 }
 
 #main_log {
-    background: $boost;
+    /* Top/Bottom: 0, Left/Right: 2 characters */
+    padding: 0 1; 
+    /* Optional: background color to see exactly where the padding is */
+    background: $boost; 
 }
 
 ConfigurationContainer, TaskRunContainer {

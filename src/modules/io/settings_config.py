@@ -53,10 +53,8 @@ def save_app_settings(settings_file: Path | str, settings: dict[str, Any]) -> No
         print(f"Error saving settings to {settings_file}: {e}")
 
 
-def set_setting_value(
-    settings_data: dict[str, Any],
-    setting_key: str,
-    new_setting_value: Any
+def set_setting_values(
+    settings_data: dict[str, Any], setting_key: str, new_setting_value: Any
 ) -> None:
     """
     Set a configuration value, handling nested keys using dot notation.
@@ -75,11 +73,11 @@ def set_setting_value(
 
     Examples:
         >>> settings_data = {}
-        >>> set_setting_value(settings_data, 'app_version', '1.0.0')
+        >>> set_setting_values(settings_data, 'app_version', '1.0.0')
         # Resulting config: {"app_version": "1.0.0"}
 
         >>> settings_data = {"app_version": "1.0.0"}
-        >>> set_setting_value(settings_data, 'custom_paths.docs', '/home/user/documents')
+        >>> set_setting_values(settings_data, 'custom_paths.docs', '/home/user/documents')
         # Resulting config: {
         #     "app_version": "1.0.0",
         #     "custom_paths": {
@@ -92,22 +90,21 @@ def set_setting_value(
         return
 
     keys = setting_key.split(".")
+    current = settings_data
     for i, key in enumerate(keys):
         if i == len(keys) - 1:  # Last key in the path
-            settings_data[key] = new_setting_value
+            current[key] = new_setting_value
         else:  # Not the last key, ensure it's a dictionary
-            if key not in settings_data or not isinstance(settings_data[key], dict):
-                settings_data[key] = {}
-            settings_data = settings_data[key]
+            if key not in current or not isinstance(current[key], dict):
+                current[key] = {}
+            current = current[key]
 
     # Save updated configuration to disk
     save_app_settings(APP_SETTINGS_FILE, settings_data)
 
 
 def get_setting_values(
-    settings_data: dict[str, Any],
-    setting_key: str,
-    default: Any = None
+    settings_data: dict[str, Any], setting_key: str, default: Any = None
 ) -> Any:
     """
     Get a settings value, handling nested keys using dot notation.
@@ -150,8 +147,7 @@ def get_setting_values(
 
 
 def get_all_setting_keys(
-    settings_data: dict[str, Any],
-    setting_key: str | None = None
+    settings_data: dict[str, Any], setting_key: str | None = None
 ) -> list[str]:
     """
     Get all keys from the settings dictionary.

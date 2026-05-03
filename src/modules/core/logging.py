@@ -9,7 +9,7 @@ def display_start_msg(
     patterns_config: Path, pattern_key: str, files_directory: Path, file_pattern: str
 ):
 
-    content = f"[bold blue] > Pattern config: [/bold blue]{patterns_config}\n[bold blue] > Pattern key: [/bold blue]{pattern_key}\n[bold blue] > Searching dir: [/bold blue]{files_directory}\n[bold blue] > File pattern: [/bold blue]{file_pattern}\n"
+    content = f"[bold blue]> Pattern config: [/bold blue]{patterns_config}\n[bold blue]> Pattern key: [/bold blue]{pattern_key}\n[bold blue]> Searching dir: [/bold blue]{files_directory}\n[bold blue]> File pattern: [/bold blue]{file_pattern}\n"
     return content
 
 
@@ -24,11 +24,20 @@ def display_finished_msg(
 
     if rows_found:
         if convert_to_excel:
-            content = f"[green]CSV saved: {output_csv}\nExcel saved: {excel_filename}\n>>> ✓ Task has finished in {total_time} seconds. <<<[/green]"
+            # Apply the tag to the whole block clearly, or line by line
+            content = (
+                f"[green]CSV saved: {output_csv}[/green]\n"
+                f"[green]Excel saved: {excel_filename}[/green]\n"
+                f"[green]>>> ✓ Task has finished in {total_time} seconds. <<<[/green]"
+            )
         else:
-            content = f"[green]CSV saved: {output_csv}\n>>> ✓ Task has finished in {total_time} seconds. <<<[/green]"
+            content = (
+                f"[green]CSV saved: {output_csv}[/green]\n"
+                f"[green]>>> ✓ Task has finished in {total_time} seconds. <<<[/green]"
+            )
     else:
-        content = f"[yellow]No matches were found, nothing to write.\n✓ Task has finished in {total_time} seconds.[/yellow]"
+        content = ("[yellow]\nNo matches were found, nothing to write.[/yellow]\n"
+                    f"[yellow]✓ Task has finished in {total_time} seconds.[/yellow]")
     return content
 
 
