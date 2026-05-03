@@ -1,0 +1,16 @@
+{
+    "SavedTasksSetting": {
+        "TaskName1": {
+            "PatternConfiguration": "Pattern",
+            "SearchDirectory": "Directory",
+            "FilePattern": "Pattern",
+            "OutputFilename": "OutFilename"
+        },
+        "TaskName2": {
+            "PatternConfiguration": "Pattern",
+            "SearchDirectory": "Directory",
+            "FilePattern": "Pattern",
+            "OutputFilename": "OutFilename"
+        }
+    }
+}

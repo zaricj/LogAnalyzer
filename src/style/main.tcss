@@ -1,8 +1,41 @@
-WelcomeMessage {
+SystemStats {
+    height: 7;
     margin: 1 4;
+    padding: 0 1;
+    background: $boost;
+    border: hkey $accent;
+    layout: vertical;
 }
 
-AppOutputArea {
+#stats_header {
+    width: 100%;
+    height: 1;
+    padding: 0 1;
+    color: $accent;
+    text-style: bold;
+}
+
+#stats_row {
+    width: 100%;
+    height: 5;
+    align: left middle;
+}
+
+StatPanel {
+    width: 1fr;
+    height: 100%;
+    padding: 0 2;
+    content-align: left middle;
+}
+
+.stats_divider {
+    width: 1;
+    height: 100%;
+    color: $accent 40%;
+    content-align: center middle;
+}
+
+AppOutputContainer {
     height: 20;
     background: $boost;
     padding: 1 2;
@@ -13,13 +46,13 @@ AppOutputArea {
     background: $boost;
 }
 
-ConfigurationArea, TaskRunArea {
+ConfigurationContainer, TaskRunContainer {
     background: $boost;
     padding: 1 2;
     margin: 1 4;
 }
 
-SavedTasksArea {
+SavedTasksContainer {
     background: $boost;
     padding: 1 2;
     margin: 1 4;
