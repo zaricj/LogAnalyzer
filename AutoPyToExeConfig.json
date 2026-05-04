@@ -1,0 +1,89 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/app.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": false
+  },
+  {
+   "optionDest": "console",
+   "value": false
+  },
+  {
+   "optionDest": "icon_file",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/gui/assets/icons/Geis.ico"
+  },
+  {
+   "optionDest": "name",
+   "value": "LobsterLogReporter"
+  },
+  {
+   "optionDest": "clean_build",
+   "value": false
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": false
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": false
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/gui;./gui/"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/gui/utils;./utils/"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/core;./core/"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/services;./services/"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/event_handling;./event_handling/"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/ZaricJ/Documents/Entwicklung_und_Tools/GitHub/LobsterLogReporter/src/config;./config/"
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": true,
+  "manualArguments": ""
+ }
+}
