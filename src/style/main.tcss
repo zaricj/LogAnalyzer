@@ -31,7 +31,8 @@ TabbedContent {
     height: 1;
     padding: 0 1;
     color: $accent;
-    text-style: bold;
+    text-style: bold underline;
+    text-align: center;
 }
 
 #stats_row {
