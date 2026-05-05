@@ -4,7 +4,6 @@ from tkinter import Tk, filedialog
 import psutil
 import os
 from textual import work
-import textual
 from textual.app import App, ComposeResult
 from textual.widgets import (
     Footer,
@@ -79,7 +78,7 @@ class StatPanel(Static):
 
     value = reactive(0.0)
 
-    BAR_WIDTH = 20
+    BAR_WIDTH = 25
     FILLED = "█"
     EMPTY = "░"
 
@@ -104,9 +103,9 @@ class StatPanel(Static):
         bar_style = self.get_bar_style(pct)
 
         text = Text()
-        text.append(f" {self.label}\n", style="bold white")
+        text.append(f"{self.label}\n", style="bold")
         text.append(self.FILLED * filled, style=bar_style)
-        text.append(self.EMPTY * empty, style="dim white")
+        text.append(self.EMPTY * empty, style="dim")
 
         if self.unit == "MB":
             text.append(f"  {self.value:.1f} {self.unit}", style=bar_style)
@@ -122,23 +121,29 @@ class SystemStats(Static):
     cpu = reactive(0.0)
     ram = reactive(0.0)
     app_ram = reactive(0.0)
+    ram_mb_total = reactive(0.0)
+    ram_mb_used = reactive(0.0)
 
     def on_mount(self) -> None:
         self.process = psutil.Process(os.getpid())
         self.set_interval(1.0, self.update_stats)
 
     def update_stats(self) -> None:
+        virtual_mem = psutil.virtual_memory()
         self.cpu = psutil.cpu_percent()
-        self.ram = psutil.virtual_memory().percent
+        self.ram = virtual_mem.percent
+        self.ram_mb_total = virtual_mem.total / (1024**2)
+        self.ram_mb_used = virtual_mem.used / (1024**2)
         self.app_ram = self.process.memory_info().rss / (1024 * 1024)
 
         self.query_one("#stat_cpu", StatPanel).value = self.cpu
         self.query_one("#stat_ram", StatPanel).value = self.ram
+        self.query_one("#stat_ram", StatPanel).label = f"RAM USAGE {self.ram_mb_used:.0f}/{self.ram_mb_total:.0f} MB"
         self.query_one("#stat_app_ram", StatPanel).value = self.app_ram
 
     def compose(self) -> ComposeResult:
         yield Static(
-            "[bold underline]SYSTEM MONITOR[/bold underline]", id="stats_header"
+            "SYSTEM MONITOR", id="stats_header"
         )
         with Horizontal(id="stats_row"):
             yield StatPanel("CPU USAGE", unit="%", id="stat_cpu")
@@ -266,11 +271,12 @@ class ConfigurationContainer(VerticalGroup):
 class GlintApp(App):
     CSS_PATH = "src/style/main.tcss"
     BINDINGS = [
-        ("d", "toggle_dark", "Toggle dark mode")
+        ("d", "toggle_dark", "Toggle Theme")
     ]
 
     def on_mount(self) -> None:
         # Load settings at runtime
+        self.theme = "atom-one-dark"
         self.app_settings = load_app_settings(APP_SETTINGS_FILE)
 
     # ------------------------------------------------------------------
@@ -425,7 +431,7 @@ class GlintApp(App):
 
     def action_toggle_dark(self) -> None:
         self.theme = (
-            "textual-dark" if self.theme == "textual-light" else "textual-light"
+            "atom-one-dark" if self.theme == "atom-one-light" else "atom-one-light"
         )
 
 
