@@ -147,8 +147,17 @@ def is_empty_row(row: dict, ignore_key: str) -> bool:
     return any(v not in (None, "") for k, v in row.items() if k != ignore_key)
 
 
-def collect_headers(row: dict) -> list:
-    return [key for key in row.keys()]
+def get_headers_from_patterns(compiled: dict) -> list[str]:
+    """Extract all named groups from compiled patterns to build complete headers."""
+    seen = set()
+    headers = ["timestamp"]
+    for group in ("base", "patterns"):
+        for _, regex in compiled.get(group, {}).items():
+            for name in regex.groupindex.keys():
+                if name not in ("time", "timestamp") and name not in seen:
+                    seen.add(name)
+                    headers.append(name)
+    return headers
 
 
 def is_keyword_event(keyword: str, event_block: str) -> bool:
