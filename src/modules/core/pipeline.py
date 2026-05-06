@@ -3,7 +3,7 @@ from re import Pattern
 from typing import Callable
 import time
 import itertools
-from src.modules.core.parser import collect_rows
+from src.modules.core.parser import collect_rows, get_headers_from_patterns
 from src.modules.core.logging import announce, display_start_msg, display_finished_msg
 from src.modules.io.config import load_pattern_search_rule
 from src.modules.io.file_utils import get_files_in_folder
@@ -34,10 +34,9 @@ def start_process(
         announce(content, log_callback)
         return
 
-    # Collect headers from the extracted first row
-    headers = ["timestamp"] + [
-        h for h in first_row.keys() if h not in ("time", "timestamp")
-    ]
+
+    # Get headers from all patterns via their group names
+    headers = get_headers_from_patterns(compiled)
     # Stitch the first row back together with the remaining generator
     full_generator = itertools.chain([first_row], row_generator)
 
