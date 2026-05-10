@@ -2,9 +2,9 @@ import csv
 import pandas as pd
 from pathlib import Path
 from typing import Iterator
-from src.modules.core.ui import CONSOLE
+from modules.core.ui import CONSOLE
 
-from src.modules.io.file_utils import ensure_output_dir
+from modules.io.file_utils import ensure_output_dir
 
 # ========== CSV ==========
 

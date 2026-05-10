@@ -9,9 +9,9 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from src.modules.core.timestamp import build_timestamp, extract_date_from_filename
-from src.modules.core.thread_executor import run_with_threading
-from src.modules.io.file_utils import get_file_info
+from modules.core.timestamp import build_timestamp, extract_date_from_filename
+from modules.core.thread_executor import run_with_threading
+from modules.io.file_utils import get_file_info
 
 # ========== Yield one event block based on the separator pattern ==========
 
@@ -110,7 +110,6 @@ def collect_rows(
                 if show_progress
                 else None
             )
-
             # CACHE these values once per file
             date_created = file["Created"].split("-")[0].strip()
             filename_date = extract_date_from_filename(filepath) or date_created
