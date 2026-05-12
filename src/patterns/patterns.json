@@ -13,7 +13,7 @@
       "separator": "^(?P<time>\\d{2}:\\d{2}:\\d{2})"
     },
     "patterns": {
-      "default": "(?s)alias\\s+(?P<alias>\\w+):\\s+pool size already exceeded\\s+(?P<exceeded_pool_size_by>\\d+)\\.\\s+Total connections:\\s+(?P<total_connections>\\d+)"
+      "default": "(?s)alias\\s+(?P<alias>\\w+):\\s+pool size already exceeded\\s+(?P<max_pool_size_for_connection>\\d+)\\.\\s+Total connections:\\s+(?P<total_connections_made>\\d+)"
     }
   },
   "ftp_per_profile": {
