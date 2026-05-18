@@ -2,7 +2,6 @@ from pathlib import Path
 from datetime import datetime
 from modules.core.pipeline import run_pipeline
 
-
 def main() -> None:
     
     # Current working directory
@@ -13,7 +12,7 @@ def main() -> None:
     PATTERN_KEY = "catalina_out_jasperserver"
 
     # File(s) to search config
-    FILES_DIR: Path = Path("logs")
+    FILES_DIR: Path = Path(r"C:\Users\ZaricJ\Downloads")
     FILE_PATTERN = "*.out"
 
     # CSV output

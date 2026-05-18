@@ -10,7 +10,7 @@ from rich.progress import (
 )
 
 from modules.core.timestamp import build_timestamp, extract_date_from_filename
-from modules.core.thread_executor import run_with_threading
+from modules.utility.thread_executor import run_with_threading
 from modules.io.file_utils import get_file_info
 
 # ========== Yield one event block based on the separator pattern ==========

@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-_MONTH_MAP = {
+MONTH_MAP = {
     "Jan": "Jan", "Feb": "Feb", "Mar": "Mär", "Apr": "Apr",
     "May": "Mai", "Jun": "Jun", "Jul": "Jul", "Aug": "Aug",
     "Sep": "Sep", "Oct": "Okt", "Nov": "Nov", "Dec": "Dez"
@@ -54,7 +54,7 @@ def to_german_datetime(time_str: str) -> str:
     for fmt in _DATETIME_FORMATS:
         try:
             dt = datetime.strptime(t, fmt)
-            month_de = _MONTH_MAP.get(dt.strftime("%b"), dt.strftime("%b"))
+            month_de = MONTH_MAP.get(dt.strftime("%b"), dt.strftime("%b"))
             return dt.strftime(f"%d. {month_de} %Y %H:%M:%S")
         except ValueError:
             continue
