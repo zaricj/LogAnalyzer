@@ -21,17 +21,26 @@ def yield_event_block(filepath, separator_pattern, progress=None, task_id=None):
         separator_pattern = re.compile(separator_pattern)
 
     buffer = []
+    line_count = 0
+    
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            # Update the progress bar every line
-            if progress and task_id is not None:
-                progress.advance(task_id)
+            line_count += 1
+            
+            # Only update UI every 1000 lines
+            if progress and task_id is not None and line_count % 1000 == 0:
+                progress.advance(task_id, 1000)
+                line_count = 0  # Reset
 
             if separator_pattern.match(line):
                 if buffer:
                     yield "".join(buffer)
                     buffer.clear()
             buffer.append(line)
+
+    # Clean up any leftover line count for the final progress push
+    if progress and task_id is not None and line_count > 0:
+        progress.advance(task_id, line_count)
 
     if buffer:
         yield "".join(buffer)
