@@ -48,5 +48,13 @@
       "catalina_out_severe": "(?P<time>\\d{2}-\\w{3}-\\d{4}\\s[\\d:.]+)\\s+(?P<Severity>SEVERE)\\s+\\[(?P<Header>[^\\]]+)\\]\\s+(?P<Message>[^\\r\\n]+)(?:[\\s\\S]*?Caused by:\\s+(?P<Cause>[^\\r\\n]+))?",
       "catalina_out_error": "(?P<time>\\d{4}-\\d{2}-\\d{2}T[\\d:,]+)\\s+(?P<Severity>ERROR)\\s+(?P<Header>[\\w,:-]+)\\s+-\\s+(?P<Message>[^\\r\\n]+)(?:[\\s\\S]*?Caused by:\\s+(?P<Cause>[^\\r\\n]+))?"
     }
+  },
+  "lobster_ftp_sessions": {
+    "base": {
+      "separator": "^(?P<time>\\d{2}:\\d{2}:\\d{2})"
+    },
+    "patterns": {
+      "default": "(?P<time>\\d{2}:\\d{2}:\\d{2})\\s+NORMAL\\s+FtpDaemon@\\S+\\s+Ftp-session\\s+finished\\s+from\\s+ip\\s+(?P<ip>[\\d.]+),\\s+user\\s+'(?P<user>[^']+)'\\s+for\\s+session\\s+(?P<session>\\S+)"
+    }
   }
 }
