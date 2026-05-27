@@ -2,11 +2,11 @@ from pathlib import Path
 import time
 import itertools
 
-from modules.core.ui import RPRINT, display_start_msg, display_finished_msg
-from modules.core.parser import collect_rows, get_headers_from_patterns
-from modules.io.pattern_handler import load_pattern_search_rule
-from modules.io.file_utils import get_files_in_folder
-from modules.io.exporters import write_csv, convert_csv_to_excel
+from src.modules.core.ui import RPRINT, display_start_msg, display_finished_msg
+from src.modules.core.parser import collect_rows, get_headers_from_patterns
+from src.modules.io.pattern_handler import load_pattern_search_rule
+from src.modules.io.file_utils import get_files_in_folder
+from src.modules.io.exporters import write_csv, convert_csv_to_excel
 
 
 # ========== Pipeline ==========

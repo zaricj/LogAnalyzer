@@ -2,9 +2,8 @@ import csv
 import xlsxwriter
 from pathlib import Path
 from typing import Iterator
-from modules.core.ui import CONSOLE
-
-from modules.io.file_utils import ensure_output_dir
+from src.modules.core.ui import CONSOLE
+from src.modules.io.file_utils import ensure_output_dir
 
 # ========== CSV ==========
 

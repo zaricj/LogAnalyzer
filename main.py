@@ -12,7 +12,7 @@ def main() -> None:
     PATTERN_KEY = "catalina_out_jasperserver"
 
     # File(s) to search config
-    FILES_DIR: Path = Path(r"C:\Users\ZaricJ\Downloads")
+    FILES_DIR: Path = Path(r"logs")
     FILE_PATTERN = "*.out"
 
     # CSV output

@@ -1,4 +1,4 @@
-from core.timestamp import MONTH_MAP
+from src.modules.core.timestamp import _MONTH_MAP
 import pandas as pd
 
 def generate_report(file_path, column_name):
@@ -24,7 +24,7 @@ def generate_report(file_path, column_name):
     # 2. Try Datetime Calculation
     # Handles timestamps by calculating the intervals (runtimes) between events
     if series.dtype == 'object':
-        for key, value in MONTH_MAP.items():
+        for key, value in _MONTH_MAP.items():
             if value in series.str:
                 series = series.str.replace(value, key, regex=False)
     

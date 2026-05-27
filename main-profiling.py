@@ -11,7 +11,7 @@ def main() -> None:
     PATTERNS_CONFIG: Path = WORKING_DIR / "patterns" / "patterns.json"
     PATTERN_KEY = "catalina_out_jasperserver"
 
-    FILES_DIR: Path = Path(r"C:\Users\ZaricJ\Downloads")
+    FILES_DIR: Path = Path(r"logs")
     FILE_PATTERN = "*.out"
 
     OUTPUT_DIR: Path = Path("output")

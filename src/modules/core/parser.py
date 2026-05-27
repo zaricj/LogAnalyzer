@@ -9,9 +9,9 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from modules.core.timestamp import build_timestamp, extract_date_from_filename
-from modules.utility.thread_executor import run_with_threading
-from modules.io.file_utils import get_file_info
+from src.modules.core.timestamp import build_timestamp, extract_date_from_filename
+from src.modules.utility.thread_executor import run_with_threading
+from src.modules.io.file_utils import get_file_info
 
 # ========== Yield one event block based on the separator pattern ==========
 

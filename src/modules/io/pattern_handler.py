@@ -1,7 +1,7 @@
 import re
 import json
 from pathlib import Path
-from modules.io.file_utils import validate_file
+from src.modules.io.file_utils import validate_file
 
 # ========== Config ==========
 
