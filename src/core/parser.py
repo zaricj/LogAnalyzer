@@ -5,7 +5,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Iterator, Mapping
 
-from core.models import LogEntry
+from src.core.models import LogEntry
 
 
 class LobsterLogParser:

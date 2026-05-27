@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Iterable, Iterator
 
-from core.models import LogEntry
+from src.core.models import LogEntry
 
 
 def filter_by_level(

@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
     QRadioButton, QSizePolicy, QSpinBox, QSplitter,
     QStatusBar, QTabWidget, QTableView, QTextEdit,
     QTreeView, QVBoxLayout, QWidget)
-from gui.assets.qrc import LobsterLogReporter_rc
+from src.gui.assets.qrc import LobsterLogReporter_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):

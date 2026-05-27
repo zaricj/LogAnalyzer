@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 import re
 
-from gui.thread_worker import Worker
+from src.gui.utils.threadWorker import Worker
 
 if TYPE_CHECKING:
     from app import MainWindow

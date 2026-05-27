@@ -1,15 +1,14 @@
 from pathlib import Path
-from typing import Self
 import sys
 import qdarktheme
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QSplitter
+from PySide6.QtWidgets import QApplication, QMainWindow, QSplitter
 
 from PySide6.QtGui import QCloseEvent, QGuiApplication, QIcon
 from PySide6.QtCore import QSettings, QThreadPool
 
-from gui.LobsterGeneralLogViewer_ui import Ui_MainWindow
-from gui.utils.UIMixinUtility import Mixin
+from src.gui.assets.ui.LobsterGeneralLogViewer_ui import Ui_MainWindow
+from src.gui.utils.UIMixinUtility import Mixin
 
 # ----------------------------
 # Constants
@@ -19,7 +18,7 @@ APP_ICON: Path = ROOT_DIR / "gui" / "assets" / "icons" / "Geis.ico"
 
 # Application versioning and metadata
 APP_VERSION: str = "v1.0.0"
-APP_NAME: str = "LobsterLogReporter"
+APP_NAME: str = "Glint"
 AUTHOR: str = "Jovan"
 
 
@@ -76,11 +75,11 @@ def restore_splitter_state(
 
 
 def initialize_theme(
-    parent: Self,
+    parent,
     theme: str,
     settings: QSettings,
     key: str = "appAppearanceMode"):
-    qdarktheme.setup_theme(theme, "rounded", custom_colors={"primary": "#ffd815"}) # Apply theme
+    qdarktheme.setup_theme(theme, "rounded", custom_colors={"primary": "#154cff"}) # Apply theme
     settings.setValue("appAppearanceMode",theme)
 
 
@@ -116,7 +115,7 @@ class MainWindow(QMainWindow, Mixin):
         restore_splitter_state(self.ui.splitterTop, self.settings)
         # Initialize theme/style for application
         theme = self.settings.value("appAppearanceMode", str("dark"))
-        initialize_theme(self, theme, self.settings)
+        initialize_theme(self, str(theme), self.settings)
         self.ui.statusbar.showMessage("Application settings loaded.", 5000)  # Shows message in statusbar
 
     # Helper method to save apps settings in a more DRY way

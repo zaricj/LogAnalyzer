@@ -3,9 +3,9 @@ from PySide6.QtWidgets import QMessageBox
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Slot, QSettings
 
-from gui.LobsterGeneralLogViewer_ui import Ui_MainWindow
-from gui.widgets.treeViewModel import DirectoryViewer
-from gui.widgets.tableViewModel import ResultsTableWidget
+from src.gui.assets.ui.LobsterGeneralLogViewer_ui import Ui_MainWindow
+from src.gui.widgets.treeViewModel import DirectoryViewer
+from src.gui.widgets.tableViewModel import ResultsTableWidget
 
 # Path configuration (for pattern handler mainly)
 FILE_DIR = Path(__file__).resolve()
@@ -37,11 +37,11 @@ class Mixin:
 
     def initialize_handlers(self):
         """Initialize all specialized event handlers."""
-        from gui.events.buttonEvents import ButtonEventHandler
-        from gui.events.comboboxEvents import ComboBoxEventHandler
-        from gui.events.lineEditEvents import LineEditHandler
-        from gui.events.menuBarEvents import MenuBarHandler
-        from gui.events.checkboxEvents import CheckboxHandler
+        from src.gui.events.buttonEvents import ButtonEventHandler
+        from src.gui.events.comboboxEvents import ComboBoxEventHandler
+        from src.gui.events.lineEditEvents import LineEditHandler
+        from src.gui.events.menuBarEvents import MenuBarHandler
+        from src.gui.events.checkboxEvents import CheckboxHandler
 
         self.button_handler = ButtonEventHandler(self)
         self.combobox_handler = ComboBoxEventHandler(self)
@@ -57,9 +57,9 @@ class Mixin:
         self.menu_bar_handler.connect_signals()
 
     def initialize_utilities(self):
-        from gui.utils.UIStateManager import UIStateManager
-        from gui.utils.helperUtility import HelperMethods
-        from gui.utils.configHandler import ConfigHandler
+        from src.gui.utils.UIStateManager import UIStateManager
+        from src.gui.utils.helperUtility import HelperMethods
+        from src.gui.utils.configHandler import ConfigHandler
 
         self.helper = HelperMethods(self)
         self.ui_state_manager = UIStateManager(self)

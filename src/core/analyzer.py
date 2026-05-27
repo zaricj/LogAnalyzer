@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Iterable
 
-from core.models import LogEntry
+from src.core.models import LogEntry
 
 
 def summarize_entries(entries: Iterable[LogEntry]) -> dict[str, object]:

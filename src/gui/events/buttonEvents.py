@@ -7,10 +7,10 @@ import pandas as pd
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMessageBox, QTextEdit
 
-from core.exporter import export_to_csv, export_to_excel
-from gui.thread_worker import Worker
-from gui.widgets.tableViewModel import ResultsTableWidget
-from services.log_service import LogService, ParseLogsResult
+from src.core.exporter import export_to_csv, export_to_excel
+from src.gui.utils.threadWorker import Worker
+from src.gui.widgets.tableViewModel import ResultsTableWidget
+from src.services.log_service import LogService, ParseLogsResult
 
 if TYPE_CHECKING:
     from app import MainWindow

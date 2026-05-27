@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.analyzer import summarize_entries
-from core.models import LogEntry
-from core.parser import LobsterLogParser
+from src.core.analyzer import summarize_entries
+from src.core.models import LogEntry
+from src.core.parser import LobsterLogParser
 
 
 @dataclass(slots=True)
