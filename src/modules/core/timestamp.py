@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-MONTH_MAP = {
+_MONTH_MAP = {
     "Jan": "Jan", "Feb": "Feb", "Mar": "Mär", "Apr": "Apr",
     "May": "Mai", "Jun": "Jun", "Jul": "Jul", "Aug": "Aug",
     "Sep": "Sep", "Oct": "Okt", "Nov": "Nov", "Dec": "Dez"
@@ -19,6 +19,8 @@ _DATETIME_FORMATS = [
     "%Y-%m-%d %H:%M:%S.%f",   # 2026-01-19 07:33:23.289
     "%Y-%m-%d %H:%M:%S",      # 2026-01-19 07:33:23
 ]
+
+_DETECTED_FORMAT_CACHE = {}
 
 # Patterns that represent a FULL datetime (date + time already present)
 _FULL_DATETIME_PATTERNS = [
@@ -51,13 +53,30 @@ def extract_date_from_filename(filepath: Path) -> str:
 
 def to_german_datetime(time_str: str) -> str:
     t = time_str.strip()
+    
+    # 1. Try using the previously successful format if it exists
+    cached_fmt = _DETECTED_FORMAT_CACHE.get("active_format")
+    if cached_fmt:
+        try:
+            dt = datetime.strptime(t, cached_fmt)
+            month_de = _MONTH_MAP.get(dt.strftime("%b"), dt.strftime("%b"))
+            return dt.strftime(f"%d. {month_de} %Y %H:%M:%S")
+        except ValueError:
+            # If it fails, something changed; fall back to checking everything
+            pass
+
+    # 2. Scan through formats if cache missed or failed
     for fmt in _DATETIME_FORMATS:
         try:
             dt = datetime.strptime(t, fmt)
-            month_de = MONTH_MAP.get(dt.strftime("%b"), dt.strftime("%b"))
+            # Cache this format so the next 10,699 rows hit step 1 instantly!
+            _DETECTED_FORMAT_CACHE["active_format"] = fmt
+            
+            month_de = _MONTH_MAP.get(dt.strftime("%b"), dt.strftime("%b"))
             return dt.strftime(f"%d. {month_de} %Y %H:%M:%S")
         except ValueError:
             continue
+            
     return t
 
 
