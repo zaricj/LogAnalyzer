@@ -90,7 +90,6 @@ def extract_matches_from_event_block(
 
 # ========== Rows and headers Generator ==========
 
-
 def collect_rows(
     files: list, separator_regex, compiled, keyword: str, show_progress: bool
 ):
@@ -119,11 +118,11 @@ def collect_rows(
                 if show_progress
                 else None
             )
+            
             # CACHE these values once per file
-            date_created = file["Created"].split("-")[0].strip()
+            # Quick fix: Split on space to grab just the date part (e.g., "2026-01-19")
+            date_created = file["Created"].split(" ")[0].strip()
             filename_date = extract_date_from_filename(filepath) or date_created
-
-            # rprint(f"Processing: [bold blue]{filepath.name}[/bold blue]")
 
             block_iter = yield_event_block(filepath, separator_regex, progress, task_id)
 
@@ -136,12 +135,15 @@ def collect_rows(
                 if not matches:
                     continue
 
-                parsed_time = matches["time"]
+                parsed_time = matches.get("time")
                 if parsed_time:
+                    # Run the blazing fast string translation function
                     matches["timestamp"] = build_timestamp(parsed_time, filename_date)
-                # Ensure 'time' is removed only after processing all matches in this block
+                
+                # Cleanup 'time' key so it doesn't pollute the CSV headers
                 if "time" in matches:
                     matches.pop("time")
+
                 # Validate row is not empty after processing
                 if not is_empty_row(matches, "timestamp"):
                     continue

@@ -68,8 +68,6 @@ def run_pipeline(
     )
     
     files = get_files_in_folder(files_directory, file_pattern)
-    test = Path(".")
-    test.__str__()  
     if not files:
         raise ValueError(
             f"No files found in {files_directory}, using pattern {file_pattern}"
