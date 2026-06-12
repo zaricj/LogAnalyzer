@@ -1,5 +1,5 @@
 import csv
-import pandas as pd
+import xlsxwriter
 from pathlib import Path
 from typing import Callable, Iterator
 from src.modules.core.logging import announce
@@ -49,26 +49,45 @@ def convert_csv_to_excel(input_csv_file: Path, output_excel_file: Path, log_call
     chunk_size = 1024
 
     announce("[bold yellow] >>> Converting CSV to Excel, please wait...[/bold yellow]", log_callback)
-    # read_csv is significantly faster than the csv module for large files
-    csv_reader = pd.read_csv(
-        input_csv_file,
-        sep=";",
-        quotechar='"',
-        encoding="utf-8",
-        engine="c",
-        chunksize=chunk_size,
-    )
+    
+    # constant_memory=True streams data straight to disk, keeping memory usage near zero.
+    workbook_options = {
+        "constant_memory": True,
+        "default_date_format": "dd.mm.yyyy hh:mm:ss",
+    }
 
-    # Using ExcelWriter to handle sequential writing
-    with pd.ExcelWriter(output_excel_file, engine="xlsxwriter") as writer:
-        for i, chunk in enumerate(csv_reader):
-            write_header = i == 0
-            start_row = i * chunk_size
-            # to_excel handles all type conversions (ints, floats, strings) natively
-            chunk.to_excel(
-                writer,
-                sheet_name="Result",
-                startrow=start_row,
-                index=False,
-                header=write_header,
-            )
+    with xlsxwriter.Workbook(str(output_excel_file), workbook_options) as workbook:
+        worksheet = workbook.add_worksheet("Result")
+
+        # Formats to optimize cell data writing
+        int_format = workbook.add_format({"num_format": "#,##0"})
+        float_format = workbook.add_format({"num_format": "#,##0.00"})
+
+        with open(input_csv_file, "r", newline="", encoding="utf-8") as csvfile:
+            # Use standard csv reader since it's incredibly light
+            reader = csv.reader(csvfile, delimiter=";", quotechar='"')
+
+            for row_idx, row in enumerate(reader):
+                for col_idx, cell in enumerate(row):
+                    # Don't try to format the header row
+                    if row_idx == 0:
+                        worksheet.write(row_idx, col_idx, cell)
+                        continue
+
+                    # Optimistic type conversion for numeric fields
+                    if not cell:
+                        worksheet.write_blank(row_idx, col_idx, None)
+                    elif cell.isdigit():
+                        worksheet.write_number(
+                            row_idx, col_idx, int(cell), int_format
+                        )
+                    else:
+                        try:
+                            # Fallback check for decimal values
+                            float_val = float(cell)
+                            worksheet.write_number(
+                                row_idx, col_idx, float_val, float_format
+                            )
+                        except ValueError:
+                            # Standard fallback for strings (and your timestamp string)
+                            worksheet.write_string(row_idx, col_idx, cell)
