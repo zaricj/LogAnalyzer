@@ -56,5 +56,50 @@
     "patterns": {
       "default": "(?P<time>\\d{2}:\\d{2}:\\d{2})\\s+NORMAL\\s+FtpDaemon@\\S+\\s+Ftp-session\\s+finished\\s+from\\s+ip\\s+(?P<ip>[\\d.]+),\\s+user\\s+'(?P<user>[^']+)'\\s+for\\s+session\\s+(?P<session>\\S+)"
     }
+  },
+  "lobster_log": {
+    "base": {
+      "separator": "^(?P<time>\\d{2}:\\d{2}:\\d{2})"
+    },
+
+    "patterns": {
+      "uncaught_exception": "(?s)^(?P<time>\\d{2}:\\d{2}:\\d{2})\\s+UNCAUGHTEXCEPTIONHANLDER:.*?Thread\\[(?P<thread>[^\\]]+)\\].*?\\n(?P<exception>java\\.[^\\n]+)\\n(?P<stacktrace>(?:\\s+at\\s+.*\\n)+)",
+
+      "sql_exception_full": "(?s)^(?P<time>\\d{2}:\\d{2}:\\d{2})\\s+SYSTEM:DATABASE:CONNECTIONPROXY\\((?P<connection_id>[a-f0-9]+)\\) exception on sql statement:\\s*(?P<sql_query>.+?)\\s*\\(transformed to\\s*(?P<transformed_query>.+?)\\)\\s*(?P<exception_class>com\\.[^:]+|java\\.[^:]+):\\s*(?P<error_message>.*?)\\n(?P<stacktrace>(?:\\s+at\\s+.*\\n)+)",
+
+      "sql_exception_simple": "(?s)(?P<exception_class>java\\.sql\\.[^:]+):\\s*(?P<error_message>[^\\n]+)",
+
+      "sql_error_code_ibm": "\\[(?P<sql_code>SQL\\d{4})\\]\\s*(?P<error_text>[^\\.]+)",
+
+      "sql_parameters": "(?P<prefix>Param for failed sql statement) \\[(?P<param_index>\\d+):(?P<param_type>[a-z])\\]\\s+'(?P<param_value>.*?)'",
+
+      "next_exception_chain": "(?s)Next exception in (?P<exception_type>[^:]+):\\s*(?P<nested_exception>java\\.sql\\.[^:]+)",
+
+      "constraint_violation": "(?s)\\[(?P<sql_code>SQL0530)\\].*?Integritätsbedingung\\s+(?P<constraint>\\S+)",
+
+      "duplicate_key_sqlserver": "(?s)SQLServerException:.*PRIMARY KEY.*?Wert ist \\((?P<duplicate_key>[^\\)]+)\\)",
+
+      "table_not_found": "(?s)Table\\s+'(?P<table>[^']+)'\\s+doesn't exist",
+
+      "cursor_prepare_exception": "(?s)cursorresult exception on prepare for '\\s*(?P<sql_query>.*?)':\\s*(?P<exception_class>java\\.sql\\.[^:]+):\\s*(?P<error_message>[^\\n]+)",
+
+      "syntax_error_as400": "(?s)(?P<exception_class>com\\.ibm\\.as400\\.access\\.AS400JDBCSQLSyntaxErrorException):\\s*\\[(?P<sql_code>SQL\\d{4})\\]\\s*(?P<message>[^\\n]+)",
+
+      "data_conversion_error": "(?s)\\[(?P<sql_code>SQL0802)\\]\\s*(?P<message>Fehler bei Datenumsetzung[^\\n]+)",
+
+      "network_timeout": "(?s)Exception while trying to call remote partner at\\s+(?P<url>http[^,]+),.*?\\n(?P<exception>java\\.net\\.SocketTimeoutException):\\s*(?P<message>[^\\n]+)",
+
+      "malformed_url": "(?s)Exception while trying to call remote partner at\\s+(?P<url>http[^,]+),.*?\\n(?P<exception>java\\.net\\.MalformedURLException):\\s*(?P<message>[^\\n]+)",
+
+      "caused_by": "(?s)Caused by:\\s*(?P<exception>java\\.[^:]+):\\s*(?P<message>[^\\n]+)",
+
+      "smtp_no_action": "SYSTEM:SMTP:SMTPSERVICE:\\s+no action found for address\\(es\\)\\s+'(?P<email>[^']+)'",
+
+      "message_lifetime_exceeded": "(?s)MESSAGEQUEUE.*?ignoring message, life time exceeded, message=(?P<message_details>Message \\[.*?\\])",
+
+      "amqp_session_closed": "(?s)Failed to create producer for alias\\s+'(?P<alias>[^']+)' .*?\\njava\\.util\\.concurrent\\.ExecutionException:\\s*(?P<root_exception>[^:]+):\\s*(?P<message>[^\\n]+)",
+
+      "generic_stacktrace": "(?s)(?P<exception>java\\.[^\\n]+)\\n(?P<stacktrace>(?:\\s+at\\s+.*\\n)+)"
+    }
   }
 }
