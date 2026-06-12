@@ -1,6 +1,7 @@
 import re
-import json
 from pathlib import Path
+
+from src.modules.core.utils import load_patterns_json, compile_regex_patterns
 from src.modules.io.file_utils import validate_file
 
 # ========== Config ==========
@@ -116,29 +117,3 @@ def validate_patterns_config(patterns_json: dict[str, dict[str, dict[str, str]]]
                 raise ValueError(
                     f"Invalid regex in pattern '{pattern_name}' for category '{category_name}': {e}"
                 )
-
-def load_patterns_json(filepath: Path) -> dict[str, str]:
-    with filepath.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def get_pattern_keys(filepath: Path) -> list[str]:
-    patterns = load_patterns_json(filepath)
-    return list(patterns.keys())
-
-
-def compile_regex(pattern: str, flags=0):
-    return re.compile(pattern, flags)
-
-
-def compile_regex_patterns(category_config: dict):
-    """Compile base separator + patterns for one category"""
-    compiled = {}
-    compiled["base"] = {
-        name: re.compile(p) for name, p in category_config.get("base", {}).items()
-    }
-    compiled["patterns"] = {
-        name: re.compile(p, re.MULTILINE | re.DOTALL)
-        for name, p in category_config.get("patterns", {}).items()
-    }
-    return compiled
