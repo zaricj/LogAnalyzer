@@ -50,6 +50,7 @@ def convert_csv_to_excel(input_csv_file: Path, output_excel_file: Path):
         workbook_options = {
             "constant_memory": True,
             "default_date_format": "dd.mm.yyyy hh:mm:ss",
+            "nan_inf_to_errors": True
         }
 
         with xlsxwriter.Workbook(str(output_excel_file), workbook_options) as workbook:
