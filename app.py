@@ -1,42 +1,43 @@
-from pathlib import Path
-from datetime import datetime
-from tkinter import Tk, filedialog
-import psutil
 import os
+from datetime import datetime, timezone
+from pathlib import Path
+from tkinter import Tk, filedialog
+
+import psutil
+from rich.text import Text
 from textual import work
 from textual.app import App, ComposeResult
-from textual.widgets import (
-    Footer,
-    Header,
-    Label,
-    Select,
-    Button,
-    Input,
-    Rule,
-    Markdown,
-    Collapsible,
-    Static,
-    Checkbox,
-    RichLog,
-    TabbedContent,
-    TabPane,
-)
-from textual.reactive import reactive
 from textual.containers import (
     Horizontal,
     HorizontalGroup,
-    VerticalScroll,
     VerticalGroup,
+    VerticalScroll,
 )
-from rich.text import Text
+from textual.reactive import reactive
+from textual.widgets import (
+    Button,
+    Checkbox,
+    Collapsible,
+    Footer,
+    Header,
+    Input,
+    Label,
+    Markdown,
+    RichLog,
+    Rule,
+    Select,
+    Static,
+    TabbedContent,
+    TabPane,
+)
 
-from src.modules.core.utils import get_pattern_keys
 from src.modules.core.pipeline import execute_pipeline
+from src.modules.core.utils import get_pattern_keys
 from src.modules.io.settings_config import (
     APP_SETTINGS_FILE,
-    load_app_settings,
     get_all_setting_keys,
     get_setting_values,
+    load_app_settings,
     set_setting_values,
 )
 
@@ -44,7 +45,7 @@ from src.modules.io.settings_config import (
 PATTERNS_CONFIG = "src/patterns/patterns.json"
 # CSV output
 OUTPUT_DIR = "output"
-TIMESTAMP_PREFIX = datetime.now().strftime("%Y_%m_%d")
+TIMESTAMP_PREFIX = datetime.now(tz=timezone.utc).strftime("%Y_%m_%d")
 
 
 class WelcomeMessage(Static):
@@ -406,8 +407,8 @@ class GlintApp(App):
                 log_callback=log.write,
             )
 
-        except Exception as e:
-            log.write(f"[bold red]Error:[/bold red] {str(e)}")
+        except Exception as exc:
+            log.write(f"[bold red]Error:[/bold red] {exc!s}")
         finally:
             btn.disabled = False
             btn.label = "Start Task"

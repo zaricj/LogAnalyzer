@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
+
 def str_to_path(object: str) -> Path:
     """If the object is of type 'str', it gets converted to an object of type 'Path' of the pathlib module.
 

@@ -1,6 +1,6 @@
-from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, Iterable
 import os
+from collections.abc import Callable, Iterable
+from concurrent.futures import ThreadPoolExecutor
 
 """
 Threading sample usage:

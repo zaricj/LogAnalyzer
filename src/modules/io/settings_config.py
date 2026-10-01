@@ -49,7 +49,7 @@ def save_app_settings(settings_file: Path | str, settings: dict[str, Any]) -> No
     try:
         with open(settings_file, "w") as file:
             json.dump(settings, file, indent=4, ensure_ascii=False)
-    except (IOError, OSError, json.JSONEncodeError) as e:
+    except (OSError, json.JSONDecodeError) as e:
         print(f"Error saving settings to {settings_file}: {e}")
 
 

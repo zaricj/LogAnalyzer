@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-from src.modules.core.utils import load_patterns_json, compile_regex_patterns
+from src.modules.core.utils import compile_regex_patterns, load_patterns_json
 from src.modules.io.file_utils import validate_file
 
 # ========== Config ==========

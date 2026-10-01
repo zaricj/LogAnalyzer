@@ -1,10 +1,9 @@
 import re
 from pathlib import Path
-from typing import Dict
 
 from src.modules.core.logging import announce
-from src.modules.core.timestamp import build_timestamp, extract_date_from_filename
 from src.modules.core.thread_executor import run_with_threading
+from src.modules.core.timestamp import build_timestamp, extract_date_from_filename
 from src.modules.io.file_utils import get_file_info
 
 # ========== Yield one event block based on the separator pattern ==========
@@ -17,10 +16,9 @@ def yield_event_block(filepath, separator_pattern):
     buffer = []
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            if separator_pattern.match(line):
-                if buffer:
-                    yield "".join(buffer)
-                    buffer.clear()
+            if separator_pattern.match(line) and buffer:
+                yield "".join(buffer)
+                buffer.clear()
             buffer.append(line)
 
     if buffer:
@@ -32,7 +30,7 @@ def yield_event_block(filepath, separator_pattern):
 
 def extract_matches_from_event_block(
     event_block: str, compiled_patterns: dict
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Extract the matches from the event block of text, with the compiled regex patterns.
     Uses a non-destructive update: later patterns will not overwrite keys already
     found by earlier patterns.
@@ -46,8 +44,8 @@ def extract_matches_from_event_block(
     """
     row = {}
 
-    # 1. Process "base" patterns (e.g., time/separator info)
-    for _, regex in compiled_patterns.get("base", {}).items():
+    # Process "base" patterns (e.g., time/separator info)
+    for regex in compiled_patterns.get("base", {}).values():
         match = regex.search(event_block)
         if match:
             for key, value in match.groupdict().items():
@@ -55,8 +53,8 @@ def extract_matches_from_event_block(
                 if value and not row.get(key):
                     row[key] = value
 
-    # 2. Process "patterns" (the specific match extractors)
-    for _, regex in compiled_patterns.get("patterns", {}).items():
+    # Process "patterns" (the specific match extractors)
+    for regex in compiled_patterns.get("patterns", {}).values():
         match = regex.search(event_block)
         if match:
             new_data = match.groupdict()
@@ -109,7 +107,7 @@ def collect_rows(files: list, separator_regex, compiled, log_callback):
 
 
 def is_empty_row(row: dict, ignore_key: str) -> bool:
-    # Filter empty rows (ignore timestamp)
+    """Filter empty rows (ignore timestamps)"""
     return any(v not in (None, "") for k, v in row.items() if k != ignore_key)
 
 
@@ -118,8 +116,8 @@ def get_headers_from_patterns(compiled: dict) -> list[str]:
     seen = set()
     headers = ["timestamp"]
     for group in ("base", "patterns"):
-        for _, regex in compiled.get(group, {}).items():
-            for name in regex.groupindex.keys():
+        for regex in compiled.get(group, {}).values():
+            for name in regex.groupindex:
                 if name not in ("time", "timestamp") and name not in seen:
                     seen.add(name)
                     headers.append(name)

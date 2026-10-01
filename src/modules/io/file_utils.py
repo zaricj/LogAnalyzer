@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any, TextIO
+
 from src.modules.io.converters import epoch_to_timestamp
 
 # ===== Validation ====== #

@@ -2,9 +2,7 @@ import json
 import re
 from pathlib import Path
 
-
 # ========== Load & Compile Patterns ==========
-
 
 def load_patterns_json(filepath: Path) -> dict[str, str]:
     with filepath.open("r", encoding="utf-8") as f:

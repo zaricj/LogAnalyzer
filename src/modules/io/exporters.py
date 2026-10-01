@@ -1,9 +1,10 @@
 import csv
-import pandas as pd
+from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Callable, Iterator
-from src.modules.core.logging import announce
 
+import pandas as pd
+
+from src.modules.core.logging import announce
 from src.modules.io.file_utils import ensure_output_dir
 
 # ========== CSV ==========

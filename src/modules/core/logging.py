@@ -1,9 +1,10 @@
-from rich import print as rprint
-from datetime import datetime
+from collections.abc import Callable
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable
 
-LOG_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+from rich import print as rprint
+
+# LOG_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def display_start_msg(
     patterns_config: Path, pattern_key: str, files_directory: Path, file_pattern: str
@@ -43,11 +44,11 @@ def display_finished_msg(
 
 def log(message: str, level: str = "info") -> None:
     """Log a message with timestamp and level."""
-    timestamp = datetime.now().strftime("%H:%M:%S")
+    timestamp = datetime.now(timezone.utc).strftime("%H:%M:%S")
     print(f"[{timestamp}] [{level.upper()}] {message}")
 
 
-def announce(message: str, log_callback: Callable[[str], None] = None) -> None:
+def announce(message: str, log_callback: Callable[[str], None] | None = None) -> None:
     """Announce a message using the provided callback or default rprint."""
     if log_callback:
         log_callback(message)
@@ -57,4 +58,4 @@ def announce(message: str, log_callback: Callable[[str], None] = None) -> None:
 
 def format_error(error: Exception) -> str:
     """Format an exception into a readable error message."""
-    return f"[bold red]Error:[/bold red] {type(error).__name__}: {str(error)}"
+    return f"[bold red]Error:[/bold red] {type(error).__name__}: {error!s}"

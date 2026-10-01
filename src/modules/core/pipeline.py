@@ -1,13 +1,14 @@
+import itertools
+import time
+from collections.abc import Callable
 from pathlib import Path
 from re import Pattern
-from typing import Callable
-import time
-import itertools
+
+from src.modules.core.logging import announce, display_finished_msg, display_start_msg
 from src.modules.core.parser import collect_rows, get_headers_from_patterns
-from src.modules.core.logging import announce, display_start_msg, display_finished_msg
 from src.modules.io.config import load_pattern_search_rule
+from src.modules.io.exporters import convert_csv_to_excel, write_csv
 from src.modules.io.file_utils import get_files_in_folder
-from src.modules.io.exporters import write_csv, convert_csv_to_excel
 
 # ========== Pipeline ==========
 
