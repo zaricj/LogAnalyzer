@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import datetime
-from src.modules.core.pipeline import run_pipeline
+from src.modules.core.run import run
 
 def main() -> None:
     
@@ -9,18 +9,18 @@ def main() -> None:
     
     # Search patterns config
     PATTERNS_CONFIG: Path = WORKING_DIR / "patterns" / "patterns.json"
-    PATTERN_KEY = "catalina_out_jasperserver"
+    PATTERN_KEY = "lobster_log"
 
     # File(s) to search config
     FILES_DIR: Path = Path(r"logs")
-    FILE_PATTERN = "*.out"
+    FILE_PATTERN = "*.log"
 
     # CSV output
     OUTPUT_DIR: Path = Path("output")
     TIMESTAMP_PREFIX = datetime.now().strftime("%Y_%m_%d")
     CSV_FILE: Path = Path(f"{OUTPUT_DIR}/{TIMESTAMP_PREFIX}_{PATTERN_KEY}.csv")
 
-    run_pipeline(
+    run(
         patterns_config=PATTERNS_CONFIG,
         pattern_key=PATTERN_KEY,
         files_directory=FILES_DIR,

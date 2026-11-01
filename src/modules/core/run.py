@@ -4,7 +4,7 @@ import itertools
 
 from src.modules.core.ui import RPRINT, display_start_msg, display_finished_msg
 from src.modules.core.parser import collect_rows, get_headers_from_patterns
-from src.modules.io.pattern_handler import load_pattern_search_rule
+from src.modules.io.regex_service import load_pattern_search_rule
 from src.modules.io.file_utils import get_files_in_folder
 from src.modules.io.exporters import write_csv, convert_csv_to_excel
 
@@ -19,9 +19,11 @@ def start_search_task(
     excel_filename = ""
     # Get headers from all patterns via their group names
     headers = get_headers_from_patterns(compiled)
-    
+
     # Collect rows as generator object
-    row_generator = collect_rows(files, separator_regex, compiled, event_keyword, show_progress)
+    row_generator = collect_rows(
+        files, separator_regex, compiled, event_keyword, show_progress
+    )
     first_row = next(row_generator, None)
 
     if first_row is None:
@@ -53,7 +55,7 @@ def start_search_task(
     display_finished_msg(str(output_csv), str(excel_filename), total_time, True)
 
 
-def run_pipeline(
+def run(
     patterns_config: Path,
     pattern_key: str,
     files_directory: Path,
@@ -64,9 +66,12 @@ def run_pipeline(
 ):
 
     display_start_msg(
-        patterns_config, pattern_key, files_directory, file_pattern, event_keyword
-    )
-    
+        patterns_config, 
+        pattern_key,
+        files_directory,
+        file_pattern,
+        event_keyword)
+
     files = get_files_in_folder(files_directory, file_pattern)
     if not files:
         raise ValueError(

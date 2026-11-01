@@ -6,9 +6,7 @@ from src.modules.io.file_utils import validate_file
 # ========== Config ==========
 
 
-def load_pattern_search_rule(
-    patterns_config: Path, pattern_key: str
-) -> tuple[dict, re.Pattern]:
+def load_pattern_search_rule(patterns_config: Path, pattern_key: str) -> tuple[dict, re.Pattern]:
     """Load the selected pattern `JSON` file which contains the regex ruleset for searching
 
     Args:
