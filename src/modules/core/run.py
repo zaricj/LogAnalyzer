@@ -55,7 +55,7 @@ def start_search_task(
     display_finished_msg(str(output_csv), str(excel_filename), total_time, True)
 
 
-def run(
+def run_pipeline(
     patterns_config: Path,
     pattern_key: str,
     files_directory: Path,

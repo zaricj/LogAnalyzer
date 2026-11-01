@@ -23,6 +23,79 @@ Glint helps you:
 - **Multiple Export Formats**: CSV export functionality
 - **Console Interface**: Command-line interface for processing
 
+## CLI Usage
+
+Glint features a command-line interface powered by `typer` with two primary commands: `run` and `patterns`.
+
+### 1. View Available Pattern Keys (`patterns`)
+
+List all available search pattern keys configured in your JSON pattern file:
+
+```bash
+# List pattern keys using the default config file (patterns/patterns.json)
+python main.py patterns
+
+# Specify a custom config file
+python main.py patterns --config path/to/custom_patterns.json
+```
+
+### 2. Run the Extraction Pipeline (`run`)
+
+The `run` command executes log parsing and exports the extracted data to CSV/Excel.
+
+> **Note:** Options `--pattern` (`-p`), `--dir` (`-d`), and `--output-dir` (`-o`) are **mandatory**.
+
+#### Basic Run Command
+
+```bash
+python main.py run \
+  --pattern lobster_log \
+  --dir ./logs \
+  --output-dir ./output
+```
+
+#### Full Run Command Options
+
+```bash
+python main.py run \
+  --config patterns/patterns.json \
+  --pattern catalina_out_jasperserver \
+  --dir ./logs \
+  --file-pattern "*.out" \
+  --output-dir ./output \
+  --keyword "SEVERE" \
+  --progress
+```
+
+#### Command Options Reference (`run`)
+
+| Option | Short | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `--pattern` | `-p` | `TEXT` | *None* | **Yes** | Pattern key to use for searching (use `patterns` to list available keys). |
+| `--dir` | `-d` | `PATH` | *None* | **Yes** | Path to the directory containing log files to search. |
+| `--output-dir` | `-o` | `PATH` | *None* | **Yes** | Directory where generated CSV/Excel reports will be saved. |
+| `--config` | `-c` | `PATH` | `patterns/patterns.json` | No | Path to the patterns JSON configuration file. |
+| `--file-pattern`| `-f` | `TEXT` | `*.log` | No | Glob pattern to match log files (e.g., `*.out`, `*.log`). |
+| `--keyword` | `-k` | `TEXT` | `""` | No | Optional keyword filter to prune event blocks. |
+| `--progress` / `--no-progress` | | `BOOL` | `True` | No | Show/hide interactive Rich progress bars during file processing. |
+
+#### Getting CLI Help
+
+Display usage details directly in your terminal:
+
+```bash
+# View general CLI help
+python main.py --help
+
+# View help for the run command
+python main.py run --help
+
+# View help for the patterns command
+python main.py patterns --help
+```
+
+---
+
 ## Supported Log Formats
 
 - SQL exceptions and errors
@@ -222,6 +295,7 @@ Results are exported to CSV files with columns:
 - `pandas` >= 3.0.2 - Data manipulation
 - `rich` >= 15.0.0 - Console formatting and progress bars
 - `xlsxwriter` >= 3.2.9 - Excel generation (optional)
+- `typer` - CLI command runner and argument parsing
 
 ### Adding New Patterns
 

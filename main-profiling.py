@@ -2,7 +2,7 @@ import cProfile
 import pstats
 from pathlib import Path
 from datetime import datetime
-from src.modules.core.pipeline import run_pipeline
+from modules.core.run import run_pipeline
 
 
 def main() -> None:
