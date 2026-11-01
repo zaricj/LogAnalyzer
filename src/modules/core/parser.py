@@ -32,10 +32,9 @@ def yield_event_block(filepath, separator_pattern, progress=None, task_id=None):
                 progress.advance(task_id, 1000)
                 line_count = 0  # Reset
 
-            if separator_pattern.match(line):
-                if buffer:
-                    yield "".join(buffer)
-                    buffer.clear()
+            if separator_pattern.match(line) and buffer:
+                yield "".join(buffer)
+                buffer.clear()
             buffer.append(line)
 
     # Clean up any leftover line count for the final progress push
@@ -66,7 +65,7 @@ def extract_matches_from_event_block(
     row = {}
 
     # 1. Process "base" patterns (e.g., time/separator info)
-    for _, regex in compiled_patterns.get("base", {}).items():
+    for regex in compiled_patterns.get("base", {}).values():
         match = regex.search(event_block)
         if match:
             for key, value in match.groupdict().items():
@@ -75,7 +74,7 @@ def extract_matches_from_event_block(
                     row[key] = value
 
     # 2. Process "patterns" (the specific match extractors)
-    for _, regex in compiled_patterns.get("patterns", {}).items():
+    for regex in compiled_patterns.get("patterns", {}).values():
         match = regex.search(event_block)
         if match:
             new_data = match.groupdict()
@@ -145,16 +144,15 @@ def collect_rows(
                     matches.pop("time")
 
                 # Validate row is not empty after processing
-                if not is_empty_row(matches, "timestamp"):
+                if not has_data(matches, "timestamp"):
                     continue
 
                 # Yield each valid row immediately
                 yield matches
 
 
-def is_empty_row(row: dict, ignore_key: str) -> bool:
-    # Filter empty rows (ignore timestamp)
-    return any(v not in (None, "") for k, v in row.items() if k != ignore_key)
+def has_data(row: dict, ignore_key: str) -> bool:
+    return any(v not in (None, "", "null") for k, v in row.items() if k != ignore_key)
 
 
 def get_headers_from_patterns(compiled: dict) -> list[str]:
