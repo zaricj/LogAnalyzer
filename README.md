@@ -43,7 +43,7 @@ python main.py patterns --config path/to/custom_patterns.json
 
 The `run` command executes log parsing and exports the extracted data to CSV/Excel.
 
-> **Note:** Options `--pattern` (`-p`), `--dir` (`-d`), and `--output-dir` (`-o`) are **mandatory**.
+> **Note:** Options `--pattern` (`-p`), `--dir` (`-d`), and `--outdir` (`-o`) are **mandatory**.
 
 #### Basic Run Command
 
@@ -51,7 +51,7 @@ The `run` command executes log parsing and exports the extracted data to CSV/Exc
 python main.py run \
   --pattern lobster_log \
   --dir ./logs \
-  --output-dir ./output
+  --outdir ./output
 ```
 
 #### Full Run Command Options
@@ -62,7 +62,7 @@ python main.py run \
   --pattern catalina_out_jasperserver \
   --dir ./logs \
   --file-pattern "*.out" \
-  --output-dir ./output \
+  --outdir ./output \
   --keyword "SEVERE" \
   --progress
 ```
@@ -73,9 +73,9 @@ python main.py run \
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `--pattern` | `-p` | `TEXT` | *None* | **Yes** | Pattern key to use for searching (use `patterns` to list available keys). |
 | `--dir` | `-d` | `PATH` | *None* | **Yes** | Path to the directory containing log files to search. |
-| `--output-dir` | `-o` | `PATH` | *None* | **Yes** | Directory where generated CSV/Excel reports will be saved. |
+| `--outdir` | `-o` | `PATH` | *None* | **Yes** | Directory where generated CSV/Excel reports will be saved. |
 | `--config` | `-c` | `PATH` | `patterns/patterns.json` | No | Path to the patterns JSON configuration file. |
-| `--file-pattern`| `-f` | `TEXT` | `*.log` | No | Glob pattern to match log files (e.g., `*.out`, `*.log`). |
+| `--file-pattern`| `-fp` | `TEXT` | `*.log` | No | Glob pattern to match log files (e.g., `*.out`, `*.log`). |
 | `--keyword` | `-k` | `TEXT` | `""` | No | Optional keyword filter to prune event blocks. |
 | `--progress` / `--no-progress` | | `BOOL` | `True` | No | Show/hide interactive Rich progress bars during file processing. |
 

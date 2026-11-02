@@ -39,21 +39,21 @@ def run(
         typer.Option(
             "--dir",
             "-d",
-            help="Path to the directory containing log files to search.",
+            help="Path to the directory containing the text files to be searched.",
         ),
     ] = ...,
     file_pattern: Annotated[
         str,
         typer.Option(
             "--file-pattern",
-            "-f",
+            "-fp",
             help="File glob pattern to match.",
         ),
     ] = "*.log",
     output_dir: Annotated[
         Path,
         typer.Option(
-            "--output-dir",
+            "--outdir",
             "-o",
             help="Directory where generated CSV and Excel reports will be saved (Mandatory).",
         ),
@@ -74,7 +74,7 @@ def run(
         ),
     ] = True,
 ) -> None:
-    """Run the Glint log parsing and report generation pipeline."""
+    """Run the Glint file parsing and report generation pipeline."""
     timestamp_prefix = datetime.now().strftime("%Y_%m_%d")
     output_csv = output_dir / f"{timestamp_prefix}_{pattern_key}.csv"
 
