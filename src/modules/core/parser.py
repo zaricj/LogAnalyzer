@@ -99,16 +99,15 @@ def collect_rows(files: list, separator_regex, compiled, log_callback):
             if "time" in matches:
                 matches.pop("time")
             # Validate row is not empty after processing
-            if not is_empty_row(matches, "timestamp"):
+            if not has_data(matches, "timestamp"):
                 continue
 
             # Yield each valid row immediately
             yield matches
 
 
-def is_empty_row(row: dict, ignore_key: str) -> bool:
-    """Filter empty rows (ignore timestamps)"""
-    return any(v not in (None, "") for k, v in row.items() if k != ignore_key)
+def has_data(row: dict, ignore_key: str) -> bool:
+	return any(v not in (None, "", "null") for k, v in row.items() if k != ignore_key)
 
 
 def get_headers_from_patterns(compiled: dict) -> list[str]:
