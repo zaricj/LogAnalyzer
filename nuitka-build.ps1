@@ -1,0 +1,1 @@
+uv run nuitka --standalone --follow-imports --enable-plugin=tk-inter --output-dir=build .\app.py
