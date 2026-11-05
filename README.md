@@ -23,6 +23,27 @@ Glint helps you:
 - **Multiple Export Formats**: CSV export functionality
 - **Console Interface**: Command-line interface for processing
 
+## GUI Usage (PySide6)
+
+Glint also ships a desktop GUI:
+
+```bash
+uv run main_gui.py
+```
+
+Pick the patterns config, pattern key, log directory, file pattern, optional keyword and
+output directory, then click **Start search**. The search runs in a background thread with
+live progress, a streamed results preview (first 1,000 rows) and a log tab. It can be
+cancelled at any time, and the last used settings are remembered.
+
+The GUI follows MVVM:
+
+| Layer | Location | Responsibility |
+|---|---|---|
+| Model | `src/models/` | `SearchConfig`/`SearchResult` dataclasses, GUI-agnostic `PipelineEngine` (callbacks + cancellation) |
+| ViewModel | `src/viewmodels/` | `MainViewModel` state/commands, `SearchWorker` (`QThread`), `ResultsTableModel` |
+| View | `src/views/` | `MainWindow` layout and bindings only |
+
 ## CLI Usage
 
 Glint features a command-line interface powered by `typer` with two primary commands: `run` and `patterns`.
