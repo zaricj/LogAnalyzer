@@ -3,7 +3,7 @@ name = "glint"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.15"
+requires-python = ">=3.14"
 dependencies = [
     "pandas>=3.1.0",
     "pyside6-essentials>=6.12.0",
