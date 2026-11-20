@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <!-- Aurora background: indigo -> violet -> magenta -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4338ca"/>
+      <stop offset="0.55" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#db2777"/>
+    </linearGradient>
+    <!-- Soft light from the top-left corner -->
+    <radialGradient id="sheen" cx="0.25" cy="0.15" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Glow behind the glint -->
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7d6" stop-opacity="0.9"/>
+      <stop offset="0.35" stop-color="#fde68a" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="match" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#fef3c7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle tile -->
+  <rect x="12" y="12" width="232" height="232" rx="60" fill="url(#bg)"/>
+  <rect x="12" y="12" width="232" height="232" rx="60" fill="url(#sheen)"/>
+  <rect x="13" y="13" width="230" height="230" rx="59" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+
+  <!-- Log lines: the bright one is the extracted match -->
+  <rect x="52" y="76"  width="76"  height="16" rx="8" fill="#ffffff" fill-opacity="0.38"/>
+  <rect x="52" y="108" width="112" height="16" rx="8" fill="#ffffff" fill-opacity="0.38"/>
+  <rect x="52" y="140" width="148" height="20" rx="10" fill="url(#match)"/>
+  <rect x="52" y="176" width="96"  height="16" rx="8" fill="#ffffff" fill-opacity="0.38"/>
+
+  <!-- The glint -->
+  <circle cx="174" cy="80" r="62" fill="url(#glow)"/>
+  <path d="M174 38 Q181 73 216 80 Q181 87 174 122 Q167 87 132 80 Q167 73 174 38 Z" fill="#ffffff"/>
+  <path d="M212 168 Q214.5 180.5 227 183 Q214.5 185.5 212 198 Q209.5 185.5 197 183 Q209.5 180.5 212 168 Z" fill="#ffffff" fill-opacity="0.9"/>
+</svg>

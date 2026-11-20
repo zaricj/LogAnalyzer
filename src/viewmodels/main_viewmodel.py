@@ -64,6 +64,7 @@ class MainViewModel(QObject):
     progress_changed = Signal(int)  # 0 .. PROGRESS_MAX
     progress_busy_changed = Signal(bool)  # indeterminate progress (preparing)
     status_text_changed = Signal(str)
+    stats_changed = Signal(int, int, int)  # rows found, files done, file count
     search_finished = Signal(object)  # SearchResult
     log_message = Signal(int, str)
 
@@ -271,6 +272,7 @@ class MainViewModel(QObject):
         self._results_model.reset(self._pattern_columns)
         self.progress_changed.emit(0)
         self.progress_busy_changed.emit(True)
+        self.stats_changed.emit(0, 0, 0)
         self._set_status("Preparing search…")
         logger.info(
             "Starting search: pattern='%s', dir='%s', files='%s'%s",
@@ -326,6 +328,9 @@ class MainViewModel(QObject):
         self.progress_changed.emit(int(progress.fraction * PROGRESS_MAX))
 
         if progress.phase is SearchPhase.SEARCHING:
+            self.stats_changed.emit(
+                progress.rows_found, max(progress.file_index - 1, 0), progress.file_count
+            )
             self._set_status(
                 f"Searching {progress.current_file} "
                 f"({progress.file_index}/{progress.file_count}) — "
@@ -346,6 +351,9 @@ class MainViewModel(QObject):
         match result.status:
             case SearchStatus.COMPLETED:
                 self.progress_changed.emit(PROGRESS_MAX)
+                self.stats_changed.emit(
+                    result.rows_written, result.files_searched, result.files_searched
+                )
                 self._set_status(
                     f"Done in {elapsed}: {result.rows_written:,} rows from "
                     f"{result.files_searched} file(s)."

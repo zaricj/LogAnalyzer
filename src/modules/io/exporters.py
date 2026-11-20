@@ -2,7 +2,6 @@ import csv
 import xlsxwriter
 from pathlib import Path
 from typing import Callable, Iterator
-from src.modules.core.ui import CONSOLE
 from src.modules.io.file_utils import ensure_output_dir
 
 # ========== CSV ==========
@@ -114,8 +113,3 @@ def write_excel_from_csv(
             if on_rows is not None and pending:
                 on_rows(pending)
 
-
-def convert_csv_to_excel(input_csv_file: Path, output_excel_file: Path) -> None:
-    """CLI front-end for ``write_excel_from_csv`` showing a rich spinner."""
-    with CONSOLE.status("[bold]>>> Converting CSV to Excel...[/bold]", spinner="arc"):
-        write_excel_from_csv(input_csv_file, output_excel_file)

@@ -18,23 +18,26 @@ Glint helps you:
 - **Event Block Extraction**: Identify and extract complete event blocks from logs
 - **Multi-Pattern Support**: Match multiple patterns within a single event
 - **Threading & Performance**: Parallel file processing with `ThreadPoolExecutor`
-- **Progress Tracking**: Visual progress bars with `rich` progress indicators
+- **Live Progress**: Progress, matched rows and elapsed time shown live in the GUI
 - **Flexible Configuration**: JSON-based pattern definitions
-- **Multiple Export Formats**: CSV export functionality
-- **Console Interface**: Command-line interface for processing
+- **Multiple Export Formats**: CSV and Excel (.xlsx) export
+- **Desktop GUI**: Modern PySide6 interface with automatic light/dark theme
 
-## GUI Usage (PySide6)
+## Usage
 
-Glint also ships a desktop GUI:
+Glint is a PySide6 desktop application:
 
 ```bash
-uv run main_gui.py
+uv run app.py
 ```
 
 Pick the patterns config, pattern key, log directory, file pattern, optional keyword and
-output directory, then click **Start search**. The search runs in a background thread with
-live progress, a streamed results preview (first 1,000 rows) and a log tab. It can be
-cancelled at any time, and the last used settings are remembered.
+output directory in the sidebar, then click **Run search** (or press `Ctrl+Enter`). The search
+runs in a background thread with live progress, a streamed results preview (first 1,000 rows)
+and an activity log. Press `Esc` to cancel at any time; the last used settings are remembered.
+The theme button next to the logo cycles **System → Light → Dark** (System follows the OS
+light/dark setting); the choice is remembered. The app icon lives in `assets/` — edit
+`glint.svg` and run `uv run assets/make_icons.py` to regenerate `glint.png`/`glint.ico`.
 
 The GUI follows MVVM:
 
@@ -42,78 +45,7 @@ The GUI follows MVVM:
 |---|---|---|
 | Model | `src/models/` | `SearchConfig`/`SearchResult` dataclasses, GUI-agnostic `PipelineEngine` (callbacks + cancellation) |
 | ViewModel | `src/viewmodels/` | `MainViewModel` state/commands, `SearchWorker` (`QThread`), `ResultsTableModel` |
-| View | `src/views/` | `MainWindow` layout and bindings only |
-
-## CLI Usage
-
-Glint features a command-line interface powered by `typer` with two primary commands: `run` and `patterns`.
-
-### 1. View Available Pattern Keys (`patterns`)
-
-List all available search pattern keys configured in your JSON pattern file:
-
-```bash
-# List pattern keys using the default config file (patterns/patterns.json)
-python main.py patterns
-
-# Specify a custom config file
-python main.py patterns --config path/to/custom_patterns.json
-```
-
-### 2. Run the Extraction Pipeline (`run`)
-
-The `run` command executes log parsing and exports the extracted data to CSV/Excel.
-
-> **Note:** Options `--pattern` (`-p`), `--dir` (`-d`), and `--outdir` (`-o`) are **mandatory**.
-
-#### Basic Run Command
-
-```bash
-python main.py run \
-  --pattern lobster_log \
-  --dir ./logs \
-  --outdir ./output
-```
-
-#### Full Run Command Options
-
-```bash
-python main.py run \
-  --config patterns/patterns.json \
-  --pattern catalina_out_jasperserver \
-  --dir ./logs \
-  --file-pattern "*.out" \
-  --outdir ./output \
-  --keyword "SEVERE" \
-  --progress
-```
-
-#### Command Options Reference (`run`)
-
-| Option | Short | Type | Default | Required | Description |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `--pattern` | `-p` | `TEXT` | *None* | **Yes** | Pattern key to use for searching (use `patterns` to list available keys). |
-| `--dir` | `-d` | `PATH` | *None* | **Yes** | Path to the directory containing log files to search. |
-| `--outdir` | `-o` | `PATH` | *None* | **Yes** | Directory where generated CSV/Excel reports will be saved. |
-| `--config` | `-c` | `PATH` | `patterns/patterns.json` | No | Path to the patterns JSON configuration file. |
-| `--file-pattern`| `-fp` | `TEXT` | `*.log` | No | Glob pattern to match log files (e.g., `*.out`, `*.log`). |
-| `--keyword` | `-k` | `TEXT` | `""` | No | Optional keyword filter to prune event blocks. |
-| `--progress` / `--no-progress` | | `BOOL` | `True` | No | Show/hide interactive Rich progress bars during file processing. |
-
-#### Getting CLI Help
-
-Display usage details directly in your terminal:
-
-```bash
-# View general CLI help
-python main.py --help
-
-# View help for the run command
-python main.py run --help
-
-# View help for the patterns command
-python main.py patterns --help
-```
+| View | `src/views/` | `MainWindow` layout and bindings, `theme.py` design tokens/QSS, `widgets.py` custom widgets |
 
 ---
 
@@ -181,88 +113,45 @@ python main.py patterns --help
 ## Project Structure
 
 ``` text
-├── .git/                      # Version control
-├── .gitignore                 # Git ignore rules
-├── .python-version            # Python version specification
-├── main.py                    # Main application entry point
-├── src/                       # Source code root
-│   └── modules/               # Core application modules
-│       ├── __init__.py
-│       ├── core/              # Core processing modules
-│       │   ├── parser.py      # Pattern parsing and extraction
-│       │   ├── pipeline.py    # Pipeline orchestration
-│       │   ├── thread_executor.py # Parallel processing management
-│       │   ├── timestamp.py   # Time formatting utilities
-│       │   ├── ui.py          # Console UI components
-│       │   └── utils.py       # Utility functions
-│       └── io/                # I/O handling modules
-│           ├── config.py      # Configuration management
-│           ├── converters.py  # Format conversions
-│           ├── exporters.py   # CSV export functionality
-│           └── file_utils.py  # File utilities
+├── app.py                     # GUI entry point
+├── benchmark/
+│   └── main-profiling.py      # Headless cProfile run of the pipeline
 ├── patterns/
-│   └── patterns.json         # Pattern definitions
-├── pyproject.toml            # Project configuration and dependencies
-├── uv.lock                   # Dependency lock file
-└── README.md                 # Documentation
+│   └── patterns.json          # Pattern definitions
+├── src/
+│   ├── models/                # SearchConfig, SearchResult, PipelineEngine
+│   ├── viewmodels/            # MainViewModel, SearchWorker, ResultsTableModel
+│   ├── views/                 # MainWindow, theme, custom widgets
+│   └── modules/
+│       ├── core/              # parser, timestamp
+│       ├── io/                # exporters, converters, file_utils, regex_service
+│       └── utility/           # thread_executor, report_stats
+├── pyproject.toml
+└── uv.lock
 ```
 
 ## Quick Start
 
-### Installation
+1. **Prerequisites**: Python 3.14+ and [uv](https://docs.astral.sh/uv/)
+2. **Install dependencies**: `uv sync`
+3. **Run**: `uv run app.py`
 
-1. **Prerequisites**: Python 3.13+
-2. **Create virtual environment**:
-  ```bash
-  python -m venv .venv
-  ```
-3. **Activate environment**:
-  ```bash
-  # Windows
-  .venv\Scripts\Activate.ps1
-  
-  # Linux/Mac
-  source .venv/bin/activate
-  ```
-4. **Install dependencies**:
-  ```bash
-  pip install -e .
-  ```
+### Scripting the pipeline
 
-### Running the Tool
-
-```bash
-# Run from project root
-python main.py
-```
-
-## Usage Examples
-
-### Basic Pattern Matching
+The pipeline engine has no Qt dependency and can be used headlessly:
 
 ```python
-from src.modules.core.pipeline import run_pipeline
+from pathlib import Path
+from src.models import PipelineEngine, SearchConfig
 
-result = run_pipeline(
-    patterns_config="patterns/patterns.json",
+result = PipelineEngine().run(SearchConfig(
+    patterns_config=Path("patterns/patterns.json"),
     pattern_key="http_requests_jasperserver",
-    files_directory="logs/",
+    files_directory=Path("logs"),
     file_pattern="*.log",
-    output_csv="output/results.csv",
-    event_keyword="",
-    show_progress=True
-)
-```
-
-### Processing Multiple Files
-
-```bash
-python main.py \
-  --patterns patterns/patterns.json \
-  --pattern http_requests_jasperserver \
-  --files logs/*.log \
-  --output output/report.csv \
-  --progress
+    output_directory=Path("output"),
+))
+print(result.status, result.rows_written, result.csv_path)
 ```
 
 ## Configuration
@@ -313,17 +202,16 @@ Results are exported to CSV files with columns:
 
 ### Dependencies
 
-- `pandas` >= 3.0.2 - Data manipulation
-- `rich` >= 15.0.0 - Console formatting and progress bars
-- `xlsxwriter` >= 3.2.9 - Excel generation (optional)
-- `typer` - CLI command runner and argument parsing
+- `pyside6-essentials` >= 6.12.0 - Desktop GUI
+- `pandas` >= 3.1.0 - Data manipulation
+- `xlsxwriter` >= 3.3.1 - Excel generation
 
 ### Adding New Patterns
 
 1. Edit `patterns/patterns.json`
 2. Add a new pattern key
 3. Define your regex patterns with multiple capture groups
-4. Test in `main.py`
+4. Reload the config in the GUI (refresh button next to the pattern key) and run a search
 
 ### JSON Configuration Structure
 
@@ -363,4 +251,4 @@ Jovan
 
 ---
 
-**Need help?** Check the source code in `main.py` or create an issue on the repository.
+**Need help?** Check the source code in `src/` or create an issue on the repository.

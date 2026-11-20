@@ -1,16 +1,8 @@
 import re
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, Iterator
-from rich.progress import (
-    Progress,
-    TextColumn,
-    BarColumn,
-    TaskProgressColumn,
-    TimeRemainingColumn,
-)
 
 from src.modules.core.timestamp import build_timestamp, extract_date_from_filename
-from src.modules.utility.thread_executor import run_with_threading
 from src.modules.io.file_utils import get_file_info
 
 # Number of lines between two progress notifications while streaming a file.
@@ -164,37 +156,6 @@ def iter_rows_from_files(
 
             # Yield each valid row immediately
             yield matches
-
-
-def collect_rows(
-    files: list, separator_regex, compiled, keyword: str, show_progress: bool
-):
-    """Collect rows from files with rich progress bars (CLI front-end for ``iter_rows_from_files``)."""
-    files_info = run_with_threading(get_file_info, files)
-
-    with Progress(
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        TimeRemainingColumn(),
-        transient=False,  # Bars do not disappear when finished
-    ) as progress:
-        current_task: dict[str, Any] = {"id": None}
-
-        def on_file_start(_: int, file: dict[str, Any]) -> None:
-            if show_progress:
-                current_task["id"] = progress.add_task(
-                    f"Searching [bold magenta]{file['Filepath'].name}[/bold magenta]...",
-                    total=file["Lines"],
-                )
-
-        def on_lines(count: int) -> None:
-            if current_task["id"] is not None:
-                progress.advance(current_task["id"], count)
-
-        yield from iter_rows_from_files(
-            files_info, separator_regex, compiled, keyword, on_file_start, on_lines
-        )
 
 
 def has_data(row: dict, ignore_key: str) -> bool:

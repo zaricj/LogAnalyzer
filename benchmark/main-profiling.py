@@ -1,50 +1,49 @@
+"""Profile the search pipeline headlessly (same engine the GUI uses).
+
+Run from the project root:  uv run python -m benchmark.main-profiling
+or:                         uv run benchmark/main-profiling.py
+"""
+
 import cProfile
 import pstats
+import sys
 from pathlib import Path
-from datetime import datetime
-from modules.core.run import run_pipeline
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.models import PipelineEngine, SearchConfig  # noqa: E402
 
 
 def main() -> None:
-    WORKING_DIR: Path = Path.cwd()
+    output_dir = PROJECT_ROOT / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    PATTERNS_CONFIG: Path = WORKING_DIR / "patterns" / "patterns.json"
-    PATTERN_KEY = "catalina_out_jasperserver"
-
-    FILES_DIR: Path = Path(r"logs")
-    FILE_PATTERN = "*.out"
-
-    OUTPUT_DIR: Path = Path("output")
-    TIMESTAMP_PREFIX = datetime.now().strftime("%Y_%m_%d")
-    CSV_FILE: Path = OUTPUT_DIR / f"{TIMESTAMP_PREFIX}_{PATTERN_KEY}.csv"
-
-    PROFILE_FILE = OUTPUT_DIR / "profile.prof"
-    TEXT_REPORT = OUTPUT_DIR / "profile.txt"
-
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    config = SearchConfig(
+        patterns_config=PROJECT_ROOT / "patterns" / "patterns.json",
+        pattern_key="catalina_out_jasperserver",
+        files_directory=PROJECT_ROOT / "logs",
+        file_pattern="*.out",
+        output_directory=output_dir,
+        export_excel=True,
+    )
 
     profiler = cProfile.Profile()
     profiler.enable()
+    result = PipelineEngine().run(config)
+    profiler.disable()
 
-    run_pipeline(
-        patterns_config=PATTERNS_CONFIG,
-        pattern_key=PATTERN_KEY,
-        files_directory=FILES_DIR,
-        file_pattern=FILE_PATTERN,
-        output_csv=CSV_FILE,
-        event_keyword="",
-        show_progress=True,
+    print(
+        f"{result.status.name}: {result.rows_written:,} rows from "
+        f"{result.files_searched} file(s) in {result.elapsed_seconds:.2f}s"
     )
 
-    profiler.disable()
-    profiler.dump_stats(PROFILE_FILE)
-
-    # Convert to human-readable text
-    with open(TEXT_REPORT, "w", encoding="utf-8") as f:
+    profiler.dump_stats(output_dir / "profile.prof")
+    with open(output_dir / "profile.txt", "w", encoding="utf-8") as f:
         stats = pstats.Stats(profiler, stream=f)
         stats.strip_dirs()
-        stats.sort_stats("cumtime")   # or "tottime"
-        stats.print_stats(50)         # top 50 functions
+        stats.sort_stats("cumtime")
+        stats.print_stats(50)
 
 
 if __name__ == "__main__":
