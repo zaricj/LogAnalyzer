@@ -24,6 +24,7 @@ from src.modules.io.regex_service import (
     validate_patterns_config,
 )
 from src.viewmodels.log_bridge import LogBridge, QtLogHandler
+from src.viewmodels.pattern_editor_viewmodel import PatternEditorViewModel
 from src.viewmodels.results_table_model import ResultsTableModel
 from src.viewmodels.search_worker import SearchWorker
 
@@ -256,6 +257,20 @@ class MainViewModel(QObject):
         else:
             self._update_pattern_columns()
         self._revalidate()
+
+    def create_pattern_editor(self, parent: QObject | None = None) -> PatternEditorViewModel | None:
+        """Create an editor for the current patterns config, or ``None`` if no path is set.
+
+        Saving in the editor reloads the pattern keys here, so the sidebar
+        reflects the new config immediately.
+        """
+        if not self._patterns_config or self._running:
+            return None
+        editor = PatternEditorViewModel(
+            Path(self._patterns_config), initial_category=self._pattern_key, parent=parent
+        )
+        editor.saved.connect(lambda _path: self.reload_patterns())
+        return editor
 
     @Slot()
     def start_search(self) -> None:

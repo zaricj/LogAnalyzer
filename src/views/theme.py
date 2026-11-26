@@ -133,6 +133,17 @@ _ICON_PATHS: dict[str, str] = {
     "moon": '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
     "monitor": '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
     "inbox": '<path d="M3 13l3-8h12l3 8v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 13h5l1 3h6l1-3h5"/>',
+    "edit": '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+    "plus": '<path d="M12 5v14M5 12h14"/>',
+    "trash": '<path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/>'
+    '<path d="M9 7V4h6v3"/>',
+    "arrow-up": '<path d="M12 19V5M6 11l6-6 6 6"/>',
+    "arrow-down": '<path d="M12 5v14M6 13l6 6 6-6"/>',
+    "undo": '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+    "save": '<path d="M5 3h11l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>'
+    '<path d="M8 3v5h7V3M8 21v-7h8v7"/>',
+    "alert": '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/>'
+    '<circle cx="12" cy="16.5" r="0.6" fill="currentColor"/>',
 }
 
 
@@ -303,6 +314,32 @@ QPlainTextEdit#LogView {{
     border-bottom-right-radius: {RADIUS_LG}px; padding: 10px 12px; font-size: 12px;
     selection-background-color: {t.accent_soft}; selection-color: {t.text};
 }}
+
+/* ---------- pattern editor ---------- */
+QDialog#PatternEditor {{ background: {t.window}; }}
+QFrame#EditorPane {{ background: {t.surface}; border: 1px solid {t.border}; border-radius: {RADIUS_LG}px; }}
+QFrame#DialogFooter {{ background: {t.sidebar}; border-top: 1px solid {t.border}; }}
+QLabel#DialogTitle {{ font-size: 18px; font-weight: 650; }}
+QLabel#DialogPath {{ color: {t.text_faint}; font-size: 12px; }}
+QLabel#FieldError {{ color: {t.danger}; font-size: 11.5px; }}
+QLabel#Summary {{ color: {t.text_muted}; font-size: 12px; }}
+QLabel#Summary[tone="danger"] {{ color: {t.danger}; }}
+QLabel#Summary[tone="warning"] {{ color: {t.warning}; }}
+QListView#CategoryList, QTableView#PatternTable, QPlainTextEdit#RegexEdit {{
+    background: {t.surface}; border: 1px solid {t.border_strong}; border-radius: {RADIUS}px;
+    selection-background-color: {t.accent_soft}; selection-color: {t.text};
+}}
+QListView#CategoryList {{ padding: 4px; }}
+QListView#CategoryList::item {{ padding: 6px 8px; border-radius: 6px; }}
+QListView#CategoryList::item:hover {{ background: {t.surface_alt}; }}
+QListView#CategoryList::item:selected {{ background: {t.accent_soft}; color: {t.text}; }}
+QTableView#PatternTable {{ alternate-background-color: {t.surface_alt}; }}
+QListView#CategoryList:focus, QTableView#PatternTable:focus, QPlainTextEdit#RegexEdit:focus {{
+    border: 1px solid {t.accent};
+}}
+QPlainTextEdit#RegexEdit {{ padding: 6px 8px; }}
+QPlainTextEdit#RegexEdit:disabled {{ background: {t.surface_alt}; border-color: {t.border}; }}
+QLineEdit[invalid="true"], QPlainTextEdit#RegexEdit[invalid="true"] {{ border: 1px solid {t.danger}; }}
 
 /* ---------- scroll bars ---------- */
 QScrollBar:vertical {{ background: transparent; width: 10px; margin: 2px; }}

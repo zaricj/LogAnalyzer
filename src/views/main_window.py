@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QMessageBox,
     QPlainTextEdit,
     QProgressBar,
     QPushButton,
@@ -40,6 +41,7 @@ from PySide6.QtWidgets import (
 
 from src.models import SearchResult, SearchStatus
 from src.viewmodels.main_viewmodel import PROGRESS_MAX, MainViewModel
+from src.views.pattern_editor import PatternEditorDialog
 from src.views.theme import APP_LOGO_PATH, LIGHT, ThemeManager, ThemeMode, Tokens, icon, mono_font
 from src.views.widgets import FlowLayout, ToggleSwitch
 
@@ -153,7 +155,13 @@ class MainWindow(QMainWindow):
         self.patterns_edit.setPlaceholderText("patterns.json")
         self.browse_patterns_button = self._icon_button("file", "Choose patterns config…")
         self.browse_patterns_button.clicked.connect(self._browse_patterns_config)
-        form_layout.addLayout(self._field("Config file", self.patterns_edit, self.browse_patterns_button))
+        self.edit_patterns_button = self._icon_button("edit", "Edit patterns config…")
+        self.edit_patterns_button.clicked.connect(self._open_pattern_editor)
+        form_layout.addLayout(
+            self._field(
+                "Config file", self.patterns_edit, self.browse_patterns_button, self.edit_patterns_button
+            )
+        )
 
         self.pattern_combo = QComboBox()
         self.pattern_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
@@ -381,16 +389,14 @@ class MainWindow(QMainWindow):
 
     # -------------------------------------------------------------- builders
 
-    def _field(
-        self, title: str, editor: QWidget, button: QWidget | None = None, hint: str = ""
-    ) -> QVBoxLayout:
+    def _field(self, title: str, editor: QWidget, *buttons: QWidget, hint: str = "") -> QVBoxLayout:
         box = QVBoxLayout()
         box.setSpacing(6)
         box.addWidget(_label(title, "FieldLabel"))
         row = QHBoxLayout()
         row.setSpacing(6)
         row.addWidget(editor, 1)
-        if button is not None:
+        for button in buttons:
             row.addWidget(button)
         box.addLayout(row)
         if hint:
@@ -561,6 +567,7 @@ class MainWindow(QMainWindow):
         for widget in (
             self.patterns_edit,
             self.browse_patterns_button,
+            self.edit_patterns_button,
             self.pattern_combo,
             self.reload_button,
             self.files_dir_edit,
@@ -677,6 +684,19 @@ class MainWindow(QMainWindow):
         )
         if path:
             self._vm.set_patterns_config(path)
+
+    def _open_pattern_editor(self) -> None:
+        editor = self._vm.create_pattern_editor(parent=self)
+        if editor is None:
+            return
+        if editor.load_error:
+            QMessageBox.critical(self, "Cannot edit patterns", editor.load_error)
+            editor.deleteLater()
+            return
+        dialog = PatternEditorDialog(editor, self._theme, self)
+        dialog.exec()
+        dialog.deleteLater()
+        editor.deleteLater()
 
     def _browse_files_directory(self) -> None:
         path = QFileDialog.getExistingDirectory(

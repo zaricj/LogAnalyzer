@@ -12,10 +12,17 @@ from PySide6.QtCore import (
     QSize,
     Qt,
 )
-from PySide6.QtGui import QColor, QPainter, QPaintEvent
-from PySide6.QtWidgets import QAbstractButton, QLayout, QLayoutItem, QSizePolicy, QWidget
+from PySide6.QtGui import QColor, QKeyEvent, QPainter, QPaintEvent
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QLayout,
+    QLayoutItem,
+    QPlainTextEdit,
+    QSizePolicy,
+    QWidget,
+)
 
-from src.views.theme import LIGHT, Tokens
+from src.views.theme import LIGHT, Tokens, mono_font
 
 
 class ToggleSwitch(QAbstractButton):
@@ -149,3 +156,24 @@ class FlowLayout(QLayout):
             x += hint.width() + self._spacing
             line_height = max(line_height, hint.height())
         return y + line_height - rect.y()
+
+
+class CodeEdit(QPlainTextEdit):
+    """Monospace, word-wrapping editor for a single regex.
+
+    Regexes are stored as one JSON string, so Enter is swallowed instead of
+    inserting a literal newline, and Tab moves focus like in a line edit.
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setFont(mono_font())
+        self.setTabChangesFocus(True)
+        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
+        self.setWordWrapMode(self.wordWrapMode().WrapAnywhere)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802 - Qt override
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            event.accept()  # swallow: never insert a newline, never trigger a default button
+            return
+        super().keyPressEvent(event)

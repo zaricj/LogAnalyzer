@@ -1,7 +1,15 @@
-import re
 import json
+import os
+import re
+import shutil
+import tempfile
 from pathlib import Path
+from typing import Any
+
 from src.modules.io.file_utils import validate_file
+
+# Flags every ``patterns`` regex is compiled with. The ``base`` regexes use none.
+PATTERN_FLAGS = re.MULTILINE | re.DOTALL
 
 # ========== Config ==========
 
@@ -109,15 +117,45 @@ def validate_patterns_config(patterns_json: dict[str, dict[str, dict[str, str]]]
 
         for pattern_name, pattern_regex in patterns.items():
             try:
-                re.compile(pattern_regex, re.MULTILINE | re.DOTALL)
+                re.compile(pattern_regex, PATTERN_FLAGS)
             except re.error as e:
                 raise ValueError(
                     f"Invalid regex in pattern '{pattern_name}' for category '{category_name}': {e}"
                 )
 
-def load_patterns_json(filepath: Path) -> dict[str, str]:
+def load_patterns_json(filepath: Path) -> dict[str, Any]:
     with filepath.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def save_patterns_json(filepath: Path, patterns_json: dict[str, Any], backup: bool = True) -> None:
+    """Validate and write a patterns config atomically.
+
+    The JSON is written to a temporary file in the target directory and then
+    swapped in with ``os.replace``, so a crash mid-write never leaves a
+    truncated config behind. With ``backup`` the previous file is kept as
+    ``<name>.bak``.
+
+    Raises:
+        TypeError, ValueError: If ``patterns_json`` is not a valid config.
+        OSError: If the file cannot be written.
+    """
+    validate_patterns_config(patterns_json)
+    text = json.dumps(patterns_json, indent=2, ensure_ascii=False) + "\n"
+
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(dir=filepath.parent, prefix=f".{filepath.name}.", suffix=".tmp")
+    tmp_path = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        if backup and filepath.is_file():
+            shutil.copy2(filepath, filepath.with_name(filepath.name + ".bak"))
+        os.replace(tmp_path, filepath)
+    finally:
+        tmp_path.unlink(missing_ok=True)
 
 
 def get_pattern_keys(filepath: Path) -> list[str]:
@@ -136,7 +174,7 @@ def compile_regex_patterns(category_config: dict):
         name: re.compile(p) for name, p in category_config.get("base", {}).items()
     }
     compiled["patterns"] = {
-        name: re.compile(p, re.MULTILINE | re.DOTALL)
+        name: re.compile(p, PATTERN_FLAGS)
         for name, p in category_config.get("patterns", {}).items()
     }
     return compiled

@@ -118,10 +118,11 @@ The GUI follows MVVM:
 │   └── main-profiling.py      # Headless cProfile run of the pipeline
 ├── patterns/
 │   └── patterns.json          # Pattern definitions
+├── tests/                     # pytest suite (uv run pytest)
 ├── src/
-│   ├── models/                # SearchConfig, SearchResult, PipelineEngine
-│   ├── viewmodels/            # MainViewModel, SearchWorker, ResultsTableModel
-│   ├── views/                 # MainWindow, theme, custom widgets
+│   ├── models/                # SearchConfig, SearchResult, PipelineEngine, PatternConfig
+│   ├── viewmodels/            # MainViewModel, PatternEditorViewModel, SearchWorker, ResultsTableModel
+│   ├── views/                 # MainWindow, PatternEditorDialog, theme, custom widgets
 │   └── modules/
 │       ├── core/              # parser, timestamp
 │       ├── io/                # exporters, converters, file_utils, regex_service
@@ -205,13 +206,26 @@ Results are exported to CSV files with columns:
 - `pyside6-essentials` >= 6.12.0 - Desktop GUI
 - `pandas` >= 3.1.0 - Data manipulation
 - `xlsxwriter` >= 3.3.1 - Excel generation
+- `pytest` (dev group) - Tests: `uv run pytest`
 
 ### Adding New Patterns
 
-1. Edit `patterns/patterns.json`
-2. Add a new pattern key
-3. Define your regex patterns with multiple capture groups
-4. Reload the config in the GUI (refresh button next to the pattern key) and run a search
+Use the built-in editor: click the **pencil button** next to *Config file* in the sidebar.
+
+- **Categories** (left): add, remove, or rename (double-click / F2) pattern keys.
+- **Event separator**: regex matching the first line of each event block.
+- **Patterns**: add, remove and reorder regexes. Order matters: for each column the
+  first pattern with a non-empty match wins. Edit names/regexes inline or in the
+  regex editor below the table.
+- Every change is validated live (regex compile errors, empty or duplicate names).
+  Problems are highlighted in red and **Save** stays disabled until they are fixed.
+- **Save** (Ctrl+S) writes the file atomically and keeps the previous version as
+  `patterns.json.bak`. If the file was changed on disk meanwhile you are asked
+  before it is overwritten. The sidebar reloads the pattern keys automatically.
+- **Revert** discards unsaved changes; closing with unsaved changes asks to save.
+
+You can still edit `patterns/patterns.json` by hand and press the refresh button
+next to the pattern key.
 
 ### JSON Configuration Structure
 
